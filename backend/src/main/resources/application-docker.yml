@@ -1,6 +1,6 @@
 spring:
     datasource:
-        url: jdbc:postgresql://building-dev.building-dev.svc.cluster.local:5432/postgres
+        url: jdbc:postgresql://building-dev-postgresql-ha.building-dev.svc.cluster.local:5432/postgres
         username: postgres
         password: FNZOYVx0avbTLp25AForp4qJ36sAl9Z7
     jpa:
