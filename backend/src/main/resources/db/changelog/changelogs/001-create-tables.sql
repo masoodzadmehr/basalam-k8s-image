@@ -1,9 +1,6 @@
--- liquibase formatted sql
+--liquibase formatted sql
 
--- ============================================================
--- Changeset 1: Create USERS table
--- ============================================================
--- changeset library:001-create-users
+--changeset library:001-create-users
 CREATE TABLE IF NOT EXISTS PUBLIC.USERS (
     ID                  BIGSERIAL               NOT NULL,
     UID                 UUID                    NOT NULL DEFAULT GEN_RANDOM_UUID(),
@@ -36,10 +33,7 @@ CREATE INDEX IF NOT EXISTS IDX_USERS_ROLE
 CREATE INDEX IF NOT EXISTS IDX_USERS_ENABLED
     ON PUBLIC.USERS (ENABLED);
 
--- ============================================================
--- Changeset 2: Create REFRESH_TOKENS table
--- ============================================================
--- changeset library:002-create-refresh-tokens
+--changeset library:002-create-refresh-tokens
 CREATE TABLE IF NOT EXISTS PUBLIC.REFRESH_TOKENS (
     ID              BIGSERIAL           NOT NULL,
     TOKEN           VARCHAR(255)        NOT NULL,
@@ -61,10 +55,7 @@ CREATE INDEX IF NOT EXISTS IDX_REFRESH_TOKENS_USER_ID
 CREATE INDEX IF NOT EXISTS IDX_REFRESH_TOKENS_REVOKED
     ON PUBLIC.REFRESH_TOKENS (REVOKED);
 
--- ============================================================
--- Changeset 3: Create HALLS table
--- ============================================================
--- changeset library:003-create-halls
+--changeset library:003-create-halls
 CREATE TABLE IF NOT EXISTS PUBLIC.HALLS (
     ID                  BIGSERIAL       NOT NULL,
     UID                 UUID            NOT NULL DEFAULT GEN_RANDOM_UUID(),
@@ -86,10 +77,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS UK_HALLS_UID
 CREATE INDEX IF NOT EXISTS IDX_HALLS_LIBRARIAN_USER_ID
     ON PUBLIC.HALLS (LIBRARIAN_USER_ID);
 
--- ============================================================
--- Changeset 4: Create BOOKSHELVES table
--- ============================================================
--- changeset library:004-create-bookshelves
+--changeset library:004-create-bookshelves
 CREATE TABLE IF NOT EXISTS PUBLIC.BOOKSHELVES (
     ID                  BIGSERIAL       NOT NULL,
     UID                 UUID            NOT NULL DEFAULT GEN_RANDOM_UUID(),
@@ -117,10 +105,7 @@ CREATE INDEX IF NOT EXISTS IDX_BOOKSHELVES_HALL_ID
 CREATE INDEX IF NOT EXISTS IDX_BOOKSHELVES_LIBRARIAN_USER_ID
     ON PUBLIC.BOOKSHELVES (LIBRARIAN_USER_ID);
 
--- ============================================================
--- Changeset 5: Create SHELVES table
--- ============================================================
--- changeset library:005-create-shelves
+--changeset library:005-create-shelves
 CREATE TABLE IF NOT EXISTS PUBLIC.SHELVES (
     ID                  BIGSERIAL       NOT NULL,
     UID                 UUID            NOT NULL DEFAULT GEN_RANDOM_UUID(),
@@ -148,10 +133,7 @@ CREATE INDEX IF NOT EXISTS IDX_SHELVES_BOOKSHELF_ID
 CREATE INDEX IF NOT EXISTS IDX_SHELVES_LIBRARIAN_USER_ID
     ON PUBLIC.SHELVES (LIBRARIAN_USER_ID);
 
--- ============================================================
--- Changeset 6: Create BOOKS table
--- ============================================================
--- changeset library:006-create-books
+--changeset library:006-create-books
 CREATE TABLE IF NOT EXISTS PUBLIC.BOOKS (
     ID                  BIGSERIAL       NOT NULL,
     UID                 UUID            NOT NULL DEFAULT GEN_RANDOM_UUID(),
@@ -189,10 +171,7 @@ CREATE INDEX IF NOT EXISTS IDX_BOOKS_AUTHOR
 CREATE INDEX IF NOT EXISTS IDX_BOOKS_ISBN
     ON PUBLIC.BOOKS (ISBN);
 
--- ============================================================
--- Changeset 7: Create BORROWINGS table
--- ============================================================
--- changeset library:007-create-borrowings
+--changeset library:007-create-borrowings
 CREATE TABLE IF NOT EXISTS PUBLIC.BORROWINGS (
     ID                  BIGSERIAL       NOT NULL,
     UID                 UUID            NOT NULL DEFAULT GEN_RANDOM_UUID(),
@@ -230,10 +209,7 @@ CREATE INDEX IF NOT EXISTS IDX_BORROWINGS_STATUS
 CREATE INDEX IF NOT EXISTS IDX_BORROWINGS_DUE_DATE
     ON PUBLIC.BORROWINGS (DUE_DATE);
 
--- ============================================================
--- Changeset 8: Create RESERVATIONS table
--- ============================================================
--- changeset library:008-create-reservations
+--changeset library:008-create-reservations
 CREATE TABLE IF NOT EXISTS PUBLIC.RESERVATIONS (
     ID                  BIGSERIAL       NOT NULL,
     UID                 UUID            NOT NULL DEFAULT GEN_RANDOM_UUID(),
@@ -270,10 +246,7 @@ CREATE INDEX IF NOT EXISTS IDX_RESERVATIONS_STATUS
 CREATE INDEX IF NOT EXISTS IDX_RESERVATIONS_EXPIRY_DATE
     ON PUBLIC.RESERVATIONS (EXPIRY_DATE);
 
--- ============================================================
--- Changeset 9: Create FINES table
--- ============================================================
--- changeset library:009-create-fines
+--changeset library:009-create-fines
 CREATE TABLE IF NOT EXISTS PUBLIC.FINES (
     ID                  BIGSERIAL           NOT NULL,
     UID                 UUID                NOT NULL DEFAULT GEN_RANDOM_UUID(),
@@ -308,10 +281,7 @@ CREATE INDEX IF NOT EXISTS IDX_FINES_USER_ID
 CREATE INDEX IF NOT EXISTS IDX_FINES_PAID
     ON PUBLIC.FINES (PAID);
 
--- ============================================================
--- Changeset 10: Create NOTIFICATIONS table
--- ============================================================
--- changeset library:010-create-notifications
+--changeset library:010-create-notifications
 CREATE TABLE IF NOT EXISTS PUBLIC.NOTIFICATIONS (
     ID              BIGSERIAL           NOT NULL,
     UID             UUID                NOT NULL DEFAULT GEN_RANDOM_UUID(),
@@ -338,10 +308,7 @@ CREATE INDEX IF NOT EXISTS IDX_NOTIFICATIONS_TYPE
 CREATE INDEX IF NOT EXISTS IDX_NOTIFICATIONS_IS_READ
     ON PUBLIC.NOTIFICATIONS (IS_READ);
 
--- ============================================================
--- Changeset 11: Create BORROWING_CONFIG table
--- ============================================================
--- changeset library:011-create-borrowing-config
+--changeset library:011-create-borrowing-config
 CREATE TABLE IF NOT EXISTS PUBLIC.BORROWING_CONFIG (
     ID                      BIGSERIAL           NOT NULL,
     MAX_BOOKS_PER_USER      INT                 NOT NULL DEFAULT 3,
