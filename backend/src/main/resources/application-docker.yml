@@ -1,29 +1,25 @@
 spring:
-    datasource:
-        url: postgresql://building-dev.building-dev.svc.cluster.local:5432/postgres
-        username: postgres
-        password: FNZOYVx0avbTLp25AForp4qJ36sAl9Z7
-    jpa:
-        hibernate:
-            ddl-auto: validate
-        open-in-view: false
-        properties:
-            hibernate:
-                dialect: org.hibernate.dialect.PostgreSQLDialect
-                format_sql: true
-        show-sql: false
-    liquibase:
-        change-log: classpath:db/changelog/db.changelog-master.yaml
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: false
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
 
 jwt:
-    access-token:
-        secret: "dGhpcy1pcy1hLXZlcnktbG9uZy1zZWNyZXQta2V5LWZvci1hY2Nlc3MtdG9rZW4tYW5kLWl0LW5lZWRzLXRvLWJlLWxvbmctZW5vdWdo"
-        expiration-ms: 900000
-    refresh-token:
-        secret: "cmVmcmVzaC10b2tlbi1zZWNyZXQta2V5LWZvci1saWJyYXJ5LW1hbmFnZW1lbnQtc3lzdGVtLXRoaXMtaXMtdmVyeS1sb25nLXNlY3JldA=="
-        expiration-ms: 604800000
+  access-token:
+    secret: "dGhpcy1pcy1hLXZlcnktbG9uZy1zZWNyZXQta2V5LWZvci1hY2Nlc3MtdG9rZW4tYW5kLWl0LW5lZWRzLXRvLWJlLWxvbmctZW5vdWdo"
+    expiration-ms: 900000
+  refresh-token:
+    secret: "cmVmcmVzaC10b2tlbi1zZWNyZXQta2V5LWZvci1saWJyYXJ5LW1hbmFnZW1lbnQtc3lzdGVtLXRoaXMtaXMtdmVyeS1sb25nLXNlY3JldA=="
+    expiration-ms: 604800000
 
 logging:
-    level:
-        com:
-            library: DEBUG
+  level:
+    com:
+      library: DEBUG
