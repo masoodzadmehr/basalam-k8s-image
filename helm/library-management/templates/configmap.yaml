@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "library-management.fullname" . }}-backend
+  labels:
+    app: {{ include "library-management.name" . }}
+data:
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://{{ include "library-management.fullname" . }}-postgres:5432/{{ .Values.postgresql.database }}"
+  SPRING_PROFILES_ACTIVE: "docker"

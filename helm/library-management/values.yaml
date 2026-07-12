@@ -1,0 +1,52 @@
+# Library Management System — Helm values
+
+replicaCount: 1
+
+image:
+  backend:
+    repository: library-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  frontend:
+    repository: library-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+
+service:
+  backend:
+    type: ClusterIP
+    port: 8080
+  frontend:
+    type: ClusterIP
+    port: 80
+
+ingress:
+  enabled: true
+  className: nginx
+  host: library.local
+  annotations: {}
+
+postgresql:
+  enabled: true
+  image: postgres:16-alpine
+  database: library
+  username: library
+  password: library123
+  storage:
+    size: 1Gi
+
+resources:
+  backend:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+  frontend:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 256Mi
