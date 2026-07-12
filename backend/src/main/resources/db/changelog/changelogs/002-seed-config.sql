@@ -1,9 +1,6 @@
 -- liquibase formatted sql
 
--- ============================================================
--- Changeset 1: Seed borrowing_config (default values, 1 row)
--- ============================================================
--- changeset library:012-seed-borrowing-config
+-- changeset library:002-seed-borrowing-config
 INSERT INTO PUBLIC.BORROWING_CONFIG (ID, MAX_BOOKS_PER_USER, LOAN_DURATION_DAYS, EXTEND_DURATION_DAYS, MAX_EXTENSIONS, FINE_PER_DAY_IRT)
 VALUES (1, 3, 14, 7, 1, 1000.00)
 ON CONFLICT (ID) DO NOTHING;
