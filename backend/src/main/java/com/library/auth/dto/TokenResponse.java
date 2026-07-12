@@ -1,0 +1,18 @@
+package com.library.auth.dto;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record TokenResponse(
+        @JsonProperty("access_token") String accessToken,
+        @JsonProperty("refresh_token") String refreshToken,
+        @JsonProperty("token_type") String tokenType,
+        @JsonProperty("expires_in") long expiresIn,
+        String role,
+        String username,
+        String email
+) {
+    public static TokenResponse of(String accessToken, String refreshToken, long expiresIn,
+                                   String role, String username, String email) {
+        return new TokenResponse(accessToken, refreshToken, "Bearer", expiresIn, role, username, email);
+    }
+}
