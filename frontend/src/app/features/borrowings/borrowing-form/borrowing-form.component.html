@@ -1,0 +1,56 @@
+<div class="borrowing-form-container">
+  <h1>Manage Borrowings</h1>
+
+  <mat-card>
+    <mat-card-content>
+      <div class="tab-row">
+        <button mat-button [color]="activeTab() === 'borrow' ? 'primary' : ''" (click)="onTabChange('borrow')">Borrow Book</button>
+        @if (canReturnBooks()) {
+          <button mat-button [color]="activeTab() === 'return' ? 'primary' : ''" (click)="onTabChange('return')">Return Book</button>
+        }
+      </div>
+
+      @if (activeTab() === 'borrow') {
+        <form [formGroup]="borrowForm" (ngSubmit)="onBorrow()" class="form-section">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Select Book</mat-label>
+            <mat-select formControlName="bookId">
+              @for (book of books(); track book.id) {
+                <mat-option [value]="book.id">{{ book.title }} by {{ book.author }} ({{ book.availableCopies }} available)</mat-option>
+              }
+            </mat-select>
+            @if (borrowForm.get('bookId')?.invalid && borrowForm.get('bookId')?.touched) {
+              <mat-error>Book is required</mat-error>
+            }
+          </mat-form-field>
+          @if (canBorrowForOthers()) {
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>User (leave empty for self)</mat-label>
+              <mat-select formControlName="userId">
+                @for (user of users(); track user.id) {
+                  <mat-option [value]="user.id">{{ user.username }} - {{ user.firstName }} {{ user.lastName }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          }
+          <button mat-flat-button color="primary" type="submit" [disabled]="borrowForm.invalid || loading">
+            Borrow Book
+          </button>
+        </form>
+      } @else {
+        <form [formGroup]="returnForm" (ngSubmit)="onReturn()" class="form-section">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Borrowing ID</mat-label>
+            <input matInput formControlName="borrowingId" type="number" placeholder="Enter the borrowing ID" />
+            @if (returnForm.get('borrowingId')?.invalid && returnForm.get('borrowingId')?.touched) {
+              <mat-error>Borrowing ID is required</mat-error>
+            }
+          </mat-form-field>
+          <button mat-flat-button color="primary" type="submit" [disabled]="returnForm.invalid || loading">
+            Return Book
+          </button>
+        </form>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,33 @@
+.fine-list-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1 {
+  margin: 0 0 16px;
+  font-size: 24px;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.empty-card {
+  text-align: center;
+  padding: 24px;
+}
+
+.table-card {
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+}
+
+tr.mat-mdc-row:hover {
+  background-color: var(--mat-sys-surface-variant);
+}

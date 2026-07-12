@@ -1,0 +1,185 @@
+<div class="location-tree-container">
+  <div class="header-row">
+    <h1>Locations</h1>
+    @if (canManageLocations()) {
+      <button mat-flat-button color="primary" (click)="openAddForm('HALL', null)">
+        <mat-icon>add</mat-icon> Add Hall
+      </button>
+    }
+  </div>
+
+  <mat-card class="form-card">
+    <mat-card-content>
+      <!-- Add Form -->
+      @if (showAddForm()) {
+        <div class="form-section">
+          <h3>Add {{ addFormType() }}</h3>
+          <form [formGroup]="addForm" (ngSubmit)="onAddSubmit()">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Name</mat-label>
+              <input matInput formControlName="name" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Description</mat-label>
+              <input matInput formControlName="description" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Librarian (optional)</mat-label>
+              <mat-select formControlName="librarianUserId">
+                <mat-option [value]="null">None</mat-option>
+                @for (lib of librarians(); track lib.id) {
+                  <mat-option [value]="lib.id">{{ lib.firstName }} {{ lib.lastName }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <div class="form-actions">
+              <button mat-stroked-button type="button" (click)="cancelAdd()">Cancel</button>
+              <button mat-flat-button color="primary" type="submit" [disabled]="addForm.invalid || saving()">Save</button>
+            </div>
+          </form>
+        </div>
+      }
+
+      <!-- Edit Form -->
+      @if (showEditForm()) {
+        <div class="form-section">
+          <h3>Edit {{ editFormType() }}</h3>
+          <form [formGroup]="editForm" (ngSubmit)="onEditSubmit()">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Name</mat-label>
+              <input matInput formControlName="name" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Description</mat-label>
+              <input matInput formControlName="description" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Librarian (optional)</mat-label>
+              <mat-select formControlName="librarianUserId">
+                <mat-option [value]="null">None</mat-option>
+                @for (lib of librarians(); track lib.id) {
+                  <mat-option [value]="lib.id">{{ lib.firstName }} {{ lib.lastName }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <div class="form-actions">
+              <button mat-stroked-button type="button" (click)="cancelEdit()">Cancel</button>
+              <button mat-flat-button color="primary" type="submit" [disabled]="editForm.invalid || saving()">Update</button>
+            </div>
+          </form>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else {
+    <mat-card class="tree-card">
+      <!-- Halls -->
+      @for (hall of halls(); track hall.id) {
+        <div class="tree-level hall-level">
+          <div class="tree-row">
+            <button mat-icon-button (click)="toggleHall(hall.id)" class="toggle-btn">
+              <mat-icon>{{ isHallExpanded(hall.id) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+            </button>
+            <mat-icon class="type-icon">domain</mat-icon>
+            <div class="tree-info">
+              <span class="tree-name">{{ hall.name }}</span>
+              @if (hall.description) { <span class="tree-desc">- {{ hall.description }}</span> }
+              @if (getLibrarianName(hall.librarianUserId)) {
+                <mat-chip class="lib-chip">{{ getLibrarianName(hall.librarianUserId) }}</mat-chip>
+              }
+            </div>
+            <div class="tree-actions">
+              @if (canManageLocations()) {
+                <button mat-icon-button (click)="openAddForm('BOOKSHELF', hall.id)" aria-label="Add bookshelf">
+                  <mat-icon>add</mat-icon>
+                </button>
+                <button mat-icon-button (click)="openEditForm(hall)" aria-label="Edit hall">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="deleteLocation(hall)" aria-label="Delete hall">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Bookshelves -->
+          @if (isHallExpanded(hall.id)) {
+            @for (bs of bookshelves.get(hall.id) || []; track bs.id) {
+              <div class="tree-level bookshelf-level">
+                <div class="tree-row">
+                  <button mat-icon-button (click)="toggleBookshelf(bs.id)" class="toggle-btn">
+                    <mat-icon>{{ isBookshelfExpanded(bs.id) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+                  </button>
+                  <mat-icon class="type-icon">shelves</mat-icon>
+                  <div class="tree-info">
+                    <span class="tree-name">{{ bs.name }}</span>
+                    @if (bs.description) { <span class="tree-desc">- {{ bs.description }}</span> }
+                    @if (getLibrarianName(bs.librarianUserId)) {
+                      <mat-chip class="lib-chip">{{ getLibrarianName(bs.librarianUserId) }}</mat-chip>
+                    }
+                  </div>
+                  <div class="tree-actions">
+                    @if (canManageLocations()) {
+                      <button mat-icon-button (click)="openAddForm('SHELF', bs.id)" aria-label="Add shelf">
+                        <mat-icon>add</mat-icon>
+                      </button>
+                      <button mat-icon-button (click)="openEditForm(bs)" aria-label="Edit bookshelf">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button color="warn" (click)="deleteLocation(bs)" aria-label="Delete bookshelf">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    }
+                  </div>
+                </div>
+
+                <!-- Shelves -->
+                @if (isBookshelfExpanded(bs.id)) {
+                  @for (shelf of shelves.get(bs.id) || []; track shelf.id) {
+                    <div class="tree-level shelf-level">
+                      <div class="tree-row">
+                        <mat-icon class="type-icon">inventory_2</mat-icon>
+                        <div class="tree-info">
+                          <span class="tree-name">{{ shelf.name }}</span>
+                          @if (shelf.description) { <span class="tree-desc">- {{ shelf.description }}</span> }
+                          @if (getLibrarianName(shelf.librarianUserId)) {
+                            <mat-chip class="lib-chip">{{ getLibrarianName(shelf.librarianUserId) }}</mat-chip>
+                          }
+                        </div>
+                        <div class="tree-actions">
+                          @if (canManageLocations()) {
+                            <button mat-icon-button (click)="openEditForm(shelf)" aria-label="Edit shelf">
+                              <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-icon-button color="warn" (click)="deleteLocation(shelf)" aria-label="Delete shelf">
+                              <mat-icon>delete</mat-icon>
+                            </button>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  }
+                  @if ((shelves.get(bs.id) || []).length === 0) {
+                    <div class="tree-level shelf-level empty-level">No shelves in this bookshelf.</div>
+                  }
+                }
+              </div>
+            }
+            @if ((bookshelves.get(hall.id) || []).length === 0) {
+              <div class="tree-level bookshelf-level empty-level">No bookshelves in this hall.</div>
+            }
+          }
+        </div>
+      }
+      @if (halls().length === 0) {
+        <div class="empty-state">No locations configured. Add a hall to get started.</div>
+      }
+    </mat-card>
+  }
+</div>

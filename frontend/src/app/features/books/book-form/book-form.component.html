@@ -1,0 +1,78 @@
+<div class="book-form-container">
+  <div class="header-row">
+    <button mat-icon-button routerLink="/books" aria-label="Back">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>{{ editMode ? 'Edit Book' : 'Add Book' }}</h1>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else {
+    <mat-card>
+      <mat-card-content>
+        <form [formGroup]="bookForm" (ngSubmit)="onSubmit()">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Title</mat-label>
+            <input matInput formControlName="title" placeholder="Book title" />
+            @if (bookForm.get('title')?.invalid && bookForm.get('title')?.touched) {
+              <mat-error>Title is required</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Author</mat-label>
+            <input matInput formControlName="author" placeholder="Author name" />
+            @if (bookForm.get('author')?.invalid && bookForm.get('author')?.touched) {
+              <mat-error>Author is required</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>ISBN</mat-label>
+            <input matInput formControlName="isbn" placeholder="ISBN-10 or ISBN-13" />
+            @if (bookForm.get('isbn')?.invalid && bookForm.get('isbn')?.touched) {
+              <mat-error>ISBN is required</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Publisher</mat-label>
+            <input matInput formControlName="publisher" placeholder="Publisher (optional)" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Publication Year</mat-label>
+            <input matInput type="number" formControlName="publicationYear" placeholder="e.g. 2025" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Copies Count</mat-label>
+            <input matInput type="number" formControlName="copiesCount" min="1" />
+            @if (bookForm.get('copiesCount')?.invalid && bookForm.get('copiesCount')?.touched) {
+              <mat-error>At least 1 copy required</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Shelf Location</mat-label>
+            <mat-select formControlName="shelfId">
+              @for (shelf of shelves(); track shelf.id) {
+                <mat-option [value]="shelf.id">{{ shelf.name }}</mat-option>
+              }
+            </mat-select>
+            @if (bookForm.get('shelfId')?.invalid && bookForm.get('shelfId')?.touched) {
+              <mat-error>Shelf is required</mat-error>
+            }
+          </mat-form-field>
+          <div class="actions">
+            <button mat-stroked-button type="button" routerLink="/books">Cancel</button>
+            <button mat-flat-button color="primary" type="submit" [disabled]="bookForm.invalid || saving()">
+              @if (saving()) {
+                <mat-spinner diameter="20"></mat-spinner>
+              } @else {
+                {{ editMode ? 'Update' : 'Create' }}
+              }
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

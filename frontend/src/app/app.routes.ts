@@ -93,6 +93,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/users/profile/profile.component').then(m => m.ProfileComponent),
       },
       {
+        path: 'locations',
+        loadComponent: () => import('./features/locations/location-tree.component').then(m => m.LocationTreeComponent),
+        data: { roles: ['LIBRARIAN', 'ADMIN'] },
+        canActivate: [roleGuard],
+      },
+      {
         path: 'admin/roles',
         loadComponent: () => import('./features/admin/role-management/role-management.component').then(m => m.RoleManagementComponent),
         data: { roles: ['ADMIN'] },

@@ -1,0 +1,48 @@
+<div class="notification-list-container">
+  <h1>Notifications
+    @if (unreadCount() > 0) {
+      <mat-chip color="warn" highlighted class="unread-badge">{{ unreadCount() }} unread</mat-chip>
+    }
+  </h1>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (notifications().length === 0) {
+    <mat-card class="empty-card">
+      <mat-card-content>No notifications.</mat-card-content>
+    </mat-card>
+  } @else {
+    <mat-card class="list-card">
+      <mat-nav-list>
+        @for (n of notifications(); track n.id) {
+          <mat-list-item
+            [class.unread]="!n.isRead"
+            [class.read]="n.isRead"
+            (click)="markAsRead(n)"
+          >
+            <mat-icon matListItemIcon>{{ getTypeIcon(n.type) }}</mat-icon>
+            <div matListItemTitle>
+              <mat-chip [color]="getTypeChipColor(n.type)" highlighted class="type-chip">{{ n.type }}</mat-chip>
+            </div>
+            <div matListItemLine class="message-text">{{ n.message }}</div>
+            <div matListItemMeta class="date-text">{{ n.createdDate | date:'medium' }}</div>
+            @if (n.isRead) {
+              <mat-icon matListItemIcon class="read-icon">mark_email_read</mat-icon>
+            } @else {
+              <mat-icon matListItemIcon class="unread-icon">mark_email_unread</mat-icon>
+            }
+          </mat-list-item>
+        }
+      </mat-nav-list>
+      <mat-paginator
+        [length]="totalElements()"
+        [pageSize]="pageSize"
+        [pageIndex]="pageIndex"
+        [pageSizeOptions]="[5, 10, 20, 50]"
+        (page)="onPageChange($event)">
+      </mat-paginator>
+    </mat-card>
+  }
+</div>

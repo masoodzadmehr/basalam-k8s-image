@@ -1,0 +1,73 @@
+<div class="book-detail-container">
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (book(); as b) {
+    <div class="header-row">
+      <button mat-icon-button routerLink="/books" aria-label="Back to list">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1>{{ b.title }}</h1>
+    </div>
+
+    <mat-card class="detail-card">
+      <mat-card-content>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="label">Author</span>
+            <span class="value">{{ b.author }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">ISBN</span>
+            <span class="value">{{ b.isbn }}</span>
+          </div>
+          @if (b.publisher) {
+            <div class="detail-item">
+              <span class="label">Publisher</span>
+              <span class="value">{{ b.publisher }}</span>
+            </div>
+          }
+          @if (b.publicationYear) {
+            <div class="detail-item">
+              <span class="label">Publication Year</span>
+              <span class="value">{{ b.publicationYear }}</span>
+            </div>
+          }
+          <div class="detail-item">
+            <span class="label">Available Copies</span>
+            <mat-chip [color]="b.availableCopies > 0 ? 'primary' : 'warn'" highlighted>
+              {{ b.availableCopies }} / {{ b.copiesCount }}
+            </mat-chip>
+          </div>
+        </div>
+      </mat-card-content>
+      <mat-card-actions class="action-row">
+        @if (canBorrow()) {
+          <button mat-flat-button color="primary" (click)="borrowBook()">
+            <mat-icon>book</mat-icon> Borrow
+          </button>
+        }
+        @if (canReserve()) {
+          <button mat-stroked-button color="accent" (click)="reserveBook()">
+            <mat-icon>event_available</mat-icon> Reserve
+          </button>
+        }
+        @if (canManageBooks()) {
+          <button mat-stroked-button (click)="editBook()">
+            <mat-icon>edit</mat-icon> Edit
+          </button>
+        }
+        @if (canDeleteBooks()) {
+          <button mat-stroked-button color="warn" (click)="deleteBook()">
+            <mat-icon>delete</mat-icon> Delete
+          </button>
+        }
+      </mat-card-actions>
+    </mat-card>
+  } @else {
+    <mat-card class="empty-card">
+      <mat-card-content>Book not found.</mat-card-content>
+    </mat-card>
+  }
+</div>
