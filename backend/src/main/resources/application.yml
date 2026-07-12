@@ -2,7 +2,7 @@ spring:
     application:
         name: library-management
     profiles:
-        active: docker
+        active: dev
 
 server:
     port: 8080
