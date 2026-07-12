@@ -1,0 +1,353 @@
+-- liquibase formatted sql
+
+-- ============================================================
+-- Changeset 1: Create USERS table
+-- ============================================================
+-- changeset library:001-create-users
+CREATE TABLE IF NOT EXISTS PUBLIC.USERS (
+    ID                  BIGSERIAL               NOT NULL,
+    UID                 UUID                    NOT NULL DEFAULT GEN_RANDOM_UUID(),
+    USERNAME            VARCHAR(50)             NOT NULL,
+    PASSWORD            VARCHAR(255)            NOT NULL,
+    EMAIL               VARCHAR(100)            NOT NULL,
+    FIRST_NAME          VARCHAR(100)            NOT NULL,
+    LAST_NAME           VARCHAR(100)            NOT NULL,
+    MOBILE              VARCHAR(20),
+    ROLE                VARCHAR(20)             NOT NULL,
+    ENABLED             BOOLEAN                 NOT NULL DEFAULT TRUE,
+    CREATED_DATE        TIMESTAMP               NOT NULL,
+    LAST_MODIFIED_DATE  TIMESTAMP               NOT NULL,
+    VERSION             INT                     NOT NULL DEFAULT 0,
+    CONSTRAINT PK_USERS PRIMARY KEY (ID)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS UK_USERS_UID
+    ON PUBLIC.USERS (UID);
+
+CREATE UNIQUE INDEX IF NOT EXISTS UK_USERS_USERNAME
+    ON PUBLIC.USERS (USERNAME);
+
+CREATE UNIQUE INDEX IF NOT EXISTS UK_USERS_EMAIL
+    ON PUBLIC.USERS (EMAIL);
+
+CREATE INDEX IF NOT EXISTS IDX_USERS_ROLE
+    ON PUBLIC.USERS (ROLE);
+
+CREATE INDEX IF NOT EXISTS IDX_USERS_ENABLED
+    ON PUBLIC.USERS (ENABLED);
+
+-- ============================================================
+-- Changeset 2: Create REFRESH_TOKENS table
+-- ============================================================
+-- changeset library:002-create-refresh-tokens
+CREATE TABLE IF NOT EXISTS PUBLIC.REFRESH_TOKENS (
+    ID              BIGSERIAL           NOT NULL,
+    TOKEN           VARCHAR(255)        NOT NULL,
+    USER_ID         BIGINT              NOT NULL,
+    EXPIRY_DATE     TIMESTAMP           NOT NULL,
+    REVOKED         BOOLEAN             NOT NULL DEFAULT FALSE,
+    CONSTRAINT PK_REFRESH_TOKENS PRIMARY KEY (ID),
+    CONSTRAINT FK_REFRESH_TOKENS_USERS
+        FOREIGN KEY (USER_ID)
+            REFERENCES PUBLIC.USERS (ID)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS UK_REFRESH_TOKENS_TOKEN
+    ON PUBLIC.REFRESH_TOKENS (TOKEN);
+
+CREATE INDEX IF NOT EXISTS IDX_REFRESH_TOKENS_USER_ID
+    ON PUBLIC.REFRESH_TOKENS (USER_ID);
+
+CREATE INDEX IF NOT EXISTS IDX_REFRESH_TOKENS_REVOKED
+    ON PUBLIC.REFRESH_TOKENS (REVOKED);
+
+-- ============================================================
+-- Changeset 3: Create HALLS table
+-- ============================================================
+-- changeset library:003-create-halls
+CREATE TABLE IF NOT EXISTS PUBLIC.HALLS (
+    ID                  BIGSERIAL       NOT NULL,
+    UID                 UUID            NOT NULL DEFAULT GEN_RANDOM_UUID(),
+    NAME                VARCHAR(100)    NOT NULL,
+    DESCRIPTION         TEXT,
+    LIBRARIAN_USER_ID   BIGINT,
+    CREATED_DATE        TIMESTAMP       NOT NULL,
+    LAST_MODIFIED_DATE  TIMESTAMP       NOT NULL,
+    VERSION             INT             NOT NULL DEFAULT 0,
+    CONSTRAINT PK_HALLS PRIMARY KEY (ID),
+    CONSTRAINT FK_HALLS_USERS
+        FOREIGN KEY (LIBRARIAN_USER_ID)
+            REFERENCES PUBLIC.USERS (ID)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS UK_HALLS_UID
+    ON PUBLIC.HALLS (UID);
+
+CREATE INDEX IF NOT EXISTS IDX_HALLS_LIBRARIAN_USER_ID
+    ON PUBLIC.HALLS (LIBRARIAN_USER_ID);
+
+-- ============================================================
+-- Changeset 4: Create BOOKSHELVES table
+-- ============================================================
+-- changeset library:004-create-bookshelves
+CREATE TABLE IF NOT EXISTS PUBLIC.BOOKSHELVES (
+    ID                  BIGSERIAL       NOT NULL,
+    UID                 UUID            NOT NULL DEFAULT GEN_RANDOM_UUID(),
+    NAME                VARCHAR(100)    NOT NULL,
+    HALL_ID             BIGINT          NOT NULL,
+    LIBRARIAN_USER_ID   BIGINT,
+    CREATED_DATE        TIMESTAMP       NOT NULL,
+    LAST_MODIFIED_DATE  TIMESTAMP       NOT NULL,
+    VERSION             INT             NOT NULL DEFAULT 0,
+    CONSTRAINT PK_BOOKSHELVES PRIMARY KEY (ID),
+    CONSTRAINT FK_BOOKSHELVES_HALLS
+        FOREIGN KEY (HALL_ID)
+            REFERENCES PUBLIC.HALLS (ID),
+    CONSTRAINT FK_BOOKSHELVES_USERS
+        FOREIGN KEY (LIBRARIAN_USER_ID)
+            REFERENCES PUBLIC.USERS (ID)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS UK_BOOKSHELVES_UID
+    ON PUBLIC.BOOKSHELVES (UID);
+
+CREATE INDEX IF NOT EXISTS IDX_BOOKSHELVES_HALL_ID
+    ON PUBLIC.BOOKSHELVES (HALL_ID);
+
+CREATE INDEX IF NOT EXISTS IDX_BOOKSHELVES_LIBRARIAN_USER_ID
+    ON PUBLIC.BOOKSHELVES (LIBRARIAN_USER_ID);
+
+-- ============================================================
+-- Changeset 5: Create SHELVES table
+-- ============================================================
+-- changeset library:005-create-shelves
+CREATE TABLE IF NOT EXISTS PUBLIC.SHELVES (
+    ID                  BIGSERIAL       NOT NULL,
+    UID                 UUID            NOT NULL DEFAULT GEN_RANDOM_UUID(),
+    NAME                VARCHAR(100)    NOT NULL,
+    BOOKSHELF_ID        BIGINT          NOT NULL,
+    LIBRARIAN_USER_ID   BIGINT,
+    CREATED_DATE        TIMESTAMP       NOT NULL,
+    LAST_MODIFIED_DATE  TIMESTAMP       NOT NULL,
+    VERSION             INT             NOT NULL DEFAULT 0,
+    CONSTRAINT PK_SHELVES PRIMARY KEY (ID),
+    CONSTRAINT FK_SHELVES_BOOKSHELVES
+        FOREIGN KEY (BOOKSHELF_ID)
+            REFERENCES PUBLIC.BOOKSHELVES (ID),
+    CONSTRAINT FK_SHELVES_USERS
+        FOREIGN KEY (LIBRARIAN_USER_ID)
+            REFERENCES PUBLIC.USERS (ID)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS UK_SHELVES_UID
+    ON PUBLIC.SHELVES (UID);
+
+CREATE INDEX IF NOT EXISTS IDX_SHELVES_BOOKSHELF_ID
+    ON PUBLIC.SHELVES (BOOKSHELF_ID);
+
+CREATE INDEX IF NOT EXISTS IDX_SHELVES_LIBRARIAN_USER_ID
+    ON PUBLIC.SHELVES (LIBRARIAN_USER_ID);
+
+-- ============================================================
+-- Changeset 6: Create BOOKS table
+-- ============================================================
+-- changeset library:006-create-books
+CREATE TABLE IF NOT EXISTS PUBLIC.BOOKS (
+    ID                  BIGSERIAL       NOT NULL,
+    UID                 UUID            NOT NULL DEFAULT GEN_RANDOM_UUID(),
+    TITLE               VARCHAR(255)    NOT NULL,
+    AUTHOR              VARCHAR(255)    NOT NULL,
+    ISBN                VARCHAR(20)     NOT NULL,
+    PUBLISHER           VARCHAR(255),
+    PUBLICATION_YEAR    INT,
+    COPIES_COUNT        INT             NOT NULL DEFAULT 1,
+    SHELF_ID            BIGINT          NOT NULL,
+    CREATED_DATE        TIMESTAMP       NOT NULL,
+    LAST_MODIFIED_DATE  TIMESTAMP       NOT NULL,
+    VERSION             INT             NOT NULL DEFAULT 0,
+    CONSTRAINT PK_BOOKS PRIMARY KEY (ID),
+    CONSTRAINT FK_BOOKS_SHELVES
+        FOREIGN KEY (SHELF_ID)
+            REFERENCES PUBLIC.SHELVES (ID)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS UK_BOOKS_UID
+    ON PUBLIC.BOOKS (UID);
+
+CREATE UNIQUE INDEX IF NOT EXISTS UK_BOOKS_ISBN
+    ON PUBLIC.BOOKS (ISBN);
+
+CREATE INDEX IF NOT EXISTS IDX_BOOKS_SHELF_ID
+    ON PUBLIC.BOOKS (SHELF_ID);
+
+CREATE INDEX IF NOT EXISTS IDX_BOOKS_TITLE
+    ON PUBLIC.BOOKS (TITLE);
+
+CREATE INDEX IF NOT EXISTS IDX_BOOKS_AUTHOR
+    ON PUBLIC.BOOKS (AUTHOR);
+
+CREATE INDEX IF NOT EXISTS IDX_BOOKS_ISBN
+    ON PUBLIC.BOOKS (ISBN);
+
+-- ============================================================
+-- Changeset 7: Create BORROWINGS table
+-- ============================================================
+-- changeset library:007-create-borrowings
+CREATE TABLE IF NOT EXISTS PUBLIC.BORROWINGS (
+    ID                  BIGSERIAL       NOT NULL,
+    UID                 UUID            NOT NULL DEFAULT GEN_RANDOM_UUID(),
+    USER_ID             BIGINT          NOT NULL,
+    BOOK_ID             BIGINT          NOT NULL,
+    BORROW_DATE         TIMESTAMP       NOT NULL,
+    DUE_DATE            TIMESTAMP       NOT NULL,
+    RETURN_DATE         TIMESTAMP,
+    STATUS              VARCHAR(20)     NOT NULL,
+    EXTENSION_COUNT     INT             NOT NULL DEFAULT 0,
+    CREATED_DATE        TIMESTAMP       NOT NULL,
+    LAST_MODIFIED_DATE  TIMESTAMP       NOT NULL,
+    VERSION             INT             NOT NULL DEFAULT 0,
+    CONSTRAINT PK_BORROWINGS PRIMARY KEY (ID),
+    CONSTRAINT FK_BORROWINGS_USERS
+        FOREIGN KEY (USER_ID)
+            REFERENCES PUBLIC.USERS (ID),
+    CONSTRAINT FK_BORROWINGS_BOOKS
+        FOREIGN KEY (BOOK_ID)
+            REFERENCES PUBLIC.BOOKS (ID)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS UK_BORROWINGS_UID
+    ON PUBLIC.BORROWINGS (UID);
+
+CREATE INDEX IF NOT EXISTS IDX_BORROWINGS_USER_ID
+    ON PUBLIC.BORROWINGS (USER_ID);
+
+CREATE INDEX IF NOT EXISTS IDX_BORROWINGS_BOOK_ID
+    ON PUBLIC.BORROWINGS (BOOK_ID);
+
+CREATE INDEX IF NOT EXISTS IDX_BORROWINGS_STATUS
+    ON PUBLIC.BORROWINGS (STATUS);
+
+CREATE INDEX IF NOT EXISTS IDX_BORROWINGS_DUE_DATE
+    ON PUBLIC.BORROWINGS (DUE_DATE);
+
+-- ============================================================
+-- Changeset 8: Create RESERVATIONS table
+-- ============================================================
+-- changeset library:008-create-reservations
+CREATE TABLE IF NOT EXISTS PUBLIC.RESERVATIONS (
+    ID                  BIGSERIAL       NOT NULL,
+    UID                 UUID            NOT NULL DEFAULT GEN_RANDOM_UUID(),
+    USER_ID             BIGINT          NOT NULL,
+    BOOK_ID             BIGINT          NOT NULL,
+    RESERVE_DATE        TIMESTAMP       NOT NULL,
+    EXPIRY_DATE         TIMESTAMP       NOT NULL,
+    FULFILLED_DATE      TIMESTAMP,
+    STATUS              VARCHAR(20)     NOT NULL,
+    CREATED_DATE        TIMESTAMP       NOT NULL,
+    LAST_MODIFIED_DATE  TIMESTAMP       NOT NULL,
+    VERSION             INT             NOT NULL DEFAULT 0,
+    CONSTRAINT PK_RESERVATIONS PRIMARY KEY (ID),
+    CONSTRAINT FK_RESERVATIONS_USERS
+        FOREIGN KEY (USER_ID)
+            REFERENCES PUBLIC.USERS (ID),
+    CONSTRAINT FK_RESERVATIONS_BOOKS
+        FOREIGN KEY (BOOK_ID)
+            REFERENCES PUBLIC.BOOKS (ID)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS UK_RESERVATIONS_UID
+    ON PUBLIC.RESERVATIONS (UID);
+
+CREATE INDEX IF NOT EXISTS IDX_RESERVATIONS_USER_ID
+    ON PUBLIC.RESERVATIONS (USER_ID);
+
+CREATE INDEX IF NOT EXISTS IDX_RESERVATIONS_BOOK_ID
+    ON PUBLIC.RESERVATIONS (BOOK_ID);
+
+CREATE INDEX IF NOT EXISTS IDX_RESERVATIONS_STATUS
+    ON PUBLIC.RESERVATIONS (STATUS);
+
+CREATE INDEX IF NOT EXISTS IDX_RESERVATIONS_EXPIRY_DATE
+    ON PUBLIC.RESERVATIONS (EXPIRY_DATE);
+
+-- ============================================================
+-- Changeset 9: Create FINES table
+-- ============================================================
+-- changeset library:009-create-fines
+CREATE TABLE IF NOT EXISTS PUBLIC.FINES (
+    ID                  BIGSERIAL           NOT NULL,
+    UID                 UUID                NOT NULL DEFAULT GEN_RANDOM_UUID(),
+    BORROWING_ID        BIGINT              NOT NULL,
+    USER_ID             BIGINT              NOT NULL,
+    AMOUNT              DECIMAL(15, 2)      NOT NULL,
+    DAILY_RATE          DECIMAL(15, 2)      NOT NULL,
+    DAYS_OVERDUE        INT                 NOT NULL,
+    PAID                BOOLEAN             NOT NULL DEFAULT FALSE,
+    PAID_DATE           TIMESTAMP,
+    CREATED_DATE        TIMESTAMP           NOT NULL,
+    LAST_MODIFIED_DATE  TIMESTAMP           NOT NULL,
+    VERSION             INT                 NOT NULL DEFAULT 0,
+    CONSTRAINT PK_FINES PRIMARY KEY (ID),
+    CONSTRAINT FK_FINES_BORROWINGS
+        FOREIGN KEY (BORROWING_ID)
+            REFERENCES PUBLIC.BORROWINGS (ID),
+    CONSTRAINT FK_FINES_USERS
+        FOREIGN KEY (USER_ID)
+            REFERENCES PUBLIC.USERS (ID)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS UK_FINES_UID
+    ON PUBLIC.FINES (UID);
+
+CREATE INDEX IF NOT EXISTS IDX_FINES_BORROWING_ID
+    ON PUBLIC.FINES (BORROWING_ID);
+
+CREATE INDEX IF NOT EXISTS IDX_FINES_USER_ID
+    ON PUBLIC.FINES (USER_ID);
+
+CREATE INDEX IF NOT EXISTS IDX_FINES_PAID
+    ON PUBLIC.FINES (PAID);
+
+-- ============================================================
+-- Changeset 10: Create NOTIFICATIONS table
+-- ============================================================
+-- changeset library:010-create-notifications
+CREATE TABLE IF NOT EXISTS PUBLIC.NOTIFICATIONS (
+    ID              BIGSERIAL           NOT NULL,
+    UID             UUID                NOT NULL DEFAULT GEN_RANDOM_UUID(),
+    USER_ID         BIGINT              NOT NULL,
+    MESSAGE         TEXT                NOT NULL,
+    TYPE            VARCHAR(30)         NOT NULL,
+    IS_READ         BOOLEAN             NOT NULL DEFAULT FALSE,
+    CREATED_DATE    TIMESTAMP           NOT NULL,
+    CONSTRAINT PK_NOTIFICATIONS PRIMARY KEY (ID),
+    CONSTRAINT FK_NOTIFICATIONS_USERS
+        FOREIGN KEY (USER_ID)
+            REFERENCES PUBLIC.USERS (ID)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS UK_NOTIFICATIONS_UID
+    ON PUBLIC.NOTIFICATIONS (UID);
+
+CREATE INDEX IF NOT EXISTS IDX_NOTIFICATIONS_USER_ID
+    ON PUBLIC.NOTIFICATIONS (USER_ID);
+
+CREATE INDEX IF NOT EXISTS IDX_NOTIFICATIONS_TYPE
+    ON PUBLIC.NOTIFICATIONS (TYPE);
+
+CREATE INDEX IF NOT EXISTS IDX_NOTIFICATIONS_IS_READ
+    ON PUBLIC.NOTIFICATIONS (IS_READ);
+
+-- ============================================================
+-- Changeset 11: Create BORROWING_CONFIG table
+-- ============================================================
+-- changeset library:011-create-borrowing-config
+CREATE TABLE IF NOT EXISTS PUBLIC.BORROWING_CONFIG (
+    ID                      BIGSERIAL           NOT NULL,
+    MAX_BOOKS_PER_USER      INT                 NOT NULL DEFAULT 3,
+    LOAN_DURATION_DAYS      INT                 NOT NULL DEFAULT 14,
+    EXTEND_DURATION_DAYS    INT                 NOT NULL DEFAULT 7,
+    MAX_EXTENSIONS          INT                 NOT NULL DEFAULT 1,
+    FINE_PER_DAY_IRT        DECIMAL(15, 2)      NOT NULL DEFAULT 1000,
+    CONSTRAINT PK_BORROWING_CONFIG PRIMARY KEY (ID)
+);
