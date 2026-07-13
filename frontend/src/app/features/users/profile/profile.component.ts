@@ -11,28 +11,25 @@ import type { User } from '../../../core/models';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, NgClass],
   template: `
-    <div class="max-w-2xl mx-auto py-6 px-4 sm:px-6">
-      <h1 class="font-display text-2xl font-bold text-ink mb-6">My Profile</h1>
+    <div class="max-w-2xl mx-auto space-y-6">
+      <h1 class="font-display text-2xl font-extrabold text-ink">My Profile</h1>
 
       @if (loading()) {
-        <div class="flex justify-center py-12">
-          <div class="animate-spin h-8 w-8 border-2 border-brass border-t-transparent rounded-full"></div>
+        <div class="flex justify-center py-16">
+          <div class="animate-spin h-8 w-8 border-2 border-ink/15 border-t-ink rounded-full"></div>
         </div>
       } @else if (user(); as u) {
-        <div class="card">
+        <div class="card !p-0 overflow-hidden">
           <!-- Profile header -->
-          <div class="flex flex-wrap items-center justify-between gap-4 p-6 border-b border-wood/10
-                      bg-brass-light/20">
-            <div>
-              <h2 class="font-display text-xl font-semibold text-ink">
-                {{ u.firstName }} {{ u.lastName }}
-              </h2>
-            </div>
-            <span class="badge text-sm font-medium"
+          <div class="flex flex-wrap items-center justify-between gap-4 p-6 border-b border-border">
+            <h2 class="font-display text-xl font-bold text-ink">
+              {{ u.firstName }} {{ u.lastName }}
+            </h2>
+            <span class="badge"
                   [ngClass]="{
-                    'badge-active': u.role === 'ADMIN',
-                    'badge-pending': u.role === 'LIBRARIAN',
-                    'badge-cancelled': u.role === 'USER'
+                    'badge-info': u.role === 'ADMIN',
+                    'badge-warning': u.role === 'LIBRARIAN',
+                    'badge-neutral': u.role === 'USER'
                   }">
               {{ u.role }}
             </span>
@@ -42,17 +39,17 @@ import type { User } from '../../../core/models';
           <div class="p-6">
             <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="space-y-5">
               <div>
-                <label class="block text-sm font-medium text-slate mb-1">Username</label>
+                <label class="block text-sm font-medium text-ink-light mb-1.5">Username</label>
                 <input type="text" formControlName="username"
-                       class="input-field w-full bg-wood/5 text-slate cursor-not-allowed"
+                       class="input-field !bg-page !text-ink-light cursor-not-allowed"
                        readonly />
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-slate mb-1">Email</label>
+                <label class="block text-sm font-medium text-ink-light mb-1.5">Email</label>
                 <input type="email" formControlName="email"
-                       class="input-field w-full"
-                       [class.border-danger]="profileForm.get('email')?.invalid
+                       class="input-field"
+                       [class.!border-danger]="profileForm.get('email')?.invalid
                                             && profileForm.get('email')?.touched" />
                 @if (profileForm.get('email')?.invalid && profileForm.get('email')?.touched) {
                   <p class="text-danger text-xs mt-1">Valid email is required</p>
@@ -61,20 +58,20 @@ import type { User } from '../../../core/models';
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label class="block text-sm font-medium text-slate mb-1">First Name</label>
+                  <label class="block text-sm font-medium text-ink-light mb-1.5">First Name</label>
                   <input type="text" formControlName="firstName"
-                         class="input-field w-full"
-                         [class.border-danger]="profileForm.get('firstName')?.invalid
+                         class="input-field"
+                         [class.!border-danger]="profileForm.get('firstName')?.invalid
                                               && profileForm.get('firstName')?.touched" />
                   @if (profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched) {
                     <p class="text-danger text-xs mt-1">Required</p>
                   }
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-slate mb-1">Last Name</label>
+                  <label class="block text-sm font-medium text-ink-light mb-1.5">Last Name</label>
                   <input type="text" formControlName="lastName"
-                         class="input-field w-full"
-                         [class.border-danger]="profileForm.get('lastName')?.invalid
+                         class="input-field"
+                         [class.!border-danger]="profileForm.get('lastName')?.invalid
                                               && profileForm.get('lastName')?.touched" />
                   @if (profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched) {
                     <p class="text-danger text-xs mt-1">Required</p>
@@ -83,14 +80,14 @@ import type { User } from '../../../core/models';
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-slate mb-1">Mobile (optional)</label>
+                <label class="block text-sm font-medium text-ink-light mb-1.5">Mobile (optional)</label>
                 <input type="text" formControlName="mobile"
-                       class="input-field w-full"
+                       class="input-field font-mono"
                        placeholder="0912..." />
               </div>
 
               <div class="flex justify-end pt-2">
-                <button type="submit" class="btn btn-primary"
+                <button type="submit" class="btn btn-accent"
                         [disabled]="profileForm.invalid || saving()">
                   @if (saving()) {
                     <span class="inline-block animate-spin h-4 w-4 border-2 border-white

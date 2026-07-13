@@ -9,53 +9,54 @@ import type { User } from '../../../core/models';
   standalone: true,
   imports: [CommonModule, NgClass],
   template: `
-    <div class="max-w-6xl mx-auto py-6 px-4 sm:px-6">
-      <h1 class="font-display text-2xl font-bold text-ink mb-6">Role Management</h1>
+    <div class="space-y-6">
+      <h1 class="font-display text-2xl font-extrabold text-ink">Role Management</h1>
 
       @if (loading()) {
-        <div class="flex justify-center py-12">
-          <div class="animate-spin h-8 w-8 border-2 border-brass border-t-transparent rounded-full"></div>
+        <div class="flex justify-center py-16">
+          <div class="animate-spin h-8 w-8 border-2 border-ink/15 border-t-ink rounded-full"></div>
         </div>
       } @else if (users().length === 0) {
-        <div class="card p-8 text-center text-slate">
-          No users found.
+        <div class="empty-state">
+          <div class="empty-state-icon">&#x2699;&#xFE0F;</div>
+          <h3 class="empty-state-title">No users found</h3>
         </div>
       } @else {
-        <div class="card overflow-hidden">
-          <table class="w-full border-collapse">
+        <div class="card-flush overflow-hidden">
+          <table class="table-root">
             <thead>
-              <tr class="table-header">
-                <th class="text-left p-3 font-semibold text-slate text-sm uppercase tracking-wider">Username</th>
-                <th class="text-left p-3 font-semibold text-slate text-sm uppercase tracking-wider">First Name</th>
-                <th class="text-left p-3 font-semibold text-slate text-sm uppercase tracking-wider">Last Name</th>
-                <th class="text-left p-3 font-semibold text-slate text-sm uppercase tracking-wider">Email</th>
-                <th class="text-left p-3 font-semibold text-slate text-sm uppercase tracking-wider">Current Role</th>
-                <th class="text-left p-3 font-semibold text-slate text-sm uppercase tracking-wider">Change to</th>
+              <tr>
+                <th>Username</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Current Role</th>
+                <th>Change to</th>
               </tr>
             </thead>
             <tbody>
               @for (user of users(); track user.id) {
-                <tr class="border-b border-wood/10 hover:bg-wood/5 transition-colors">
-                  <td class="p-3 text-ink text-sm">{{ user.username }}</td>
-                  <td class="p-3 text-ink text-sm">{{ user.firstName }}</td>
-                  <td class="p-3 text-ink text-sm">{{ user.lastName }}</td>
-                  <td class="p-3 text-ink text-sm">{{ user.email }}</td>
-                  <td class="p-3">
+                <tr>
+                  <td>{{ user.username }}</td>
+                  <td>{{ user.firstName }}</td>
+                  <td>{{ user.lastName }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>
                     <span class="badge text-xs"
                           [ngClass]="{
-                            'badge-active': user.role === 'ADMIN',
-                            'badge-pending': user.role === 'LIBRARIAN',
-                            'badge-cancelled': user.role === 'USER'
+                            'badge-info': user.role === 'ADMIN',
+                            'badge-warning': user.role === 'LIBRARIAN',
+                            'badge-neutral': user.role === 'USER'
                           }">
                       {{ user.role }}
                     </span>
                   </td>
-                  <td class="p-3">
+                  <td>
                     @if (savingId() === user.id) {
-                      <div class="animate-spin h-5 w-5 border-2 border-brass border-t-transparent
+                      <div class="animate-spin h-5 w-5 border-2 border-ink/15 border-t-ink
                                   rounded-full inline-block"></div>
                     } @else {
-                      <select class="input-field text-sm py-1 w-32"
+                      <select class="input-field w-auto text-sm !py-1"
                               [value]="user.role"
                               (change)="changeRole(user, $any($event.target).value)">
                         @for (role of roles; track role) {
@@ -70,14 +71,13 @@ import type { User } from '../../../core/models';
           </table>
 
           <!-- Pagination -->
-          <div class="flex flex-wrap items-center justify-between gap-4 p-4 border-t border-wood/10">
-            <div class="text-sm text-slate-light">
-              Showing {{ pageIndex * pageSize + 1 }} -
-              {{ (pageIndex + 1) * pageSize > totalElements() ? totalElements() : (pageIndex + 1) * pageSize }}
-              of {{ totalElements() }} users
+          <div class="flex flex-wrap items-center justify-between gap-4 p-4 border-t border-border">
+            <div class="text-sm text-ink-muted">
+              {{ pageIndex * pageSize + 1 }}&ndash;{{ ((pageIndex + 1) * pageSize > totalElements() ? totalElements() : (pageIndex + 1) * pageSize) }}
+              of {{ totalElements() }}
             </div>
             <div class="flex items-center gap-2">
-              <select class="input-field text-sm py-1"
+              <select class="input-field w-auto text-sm !py-1.5"
                       [value]="pageSize"
                       (change)="onPageSizeChange($any($event.target).value)">
                 <option [value]="5">5</option>
@@ -85,23 +85,15 @@ import type { User } from '../../../core/models';
                 <option [value]="20">20</option>
                 <option [value]="50">50</option>
               </select>
-              <span class="text-sm text-slate-light">per page</span>
-              <div class="flex gap-1 ml-4">
-                <button class="btn btn-secondary btn-sm px-3"
-                        [disabled]="pageIndex === 0"
-                        (click)="goToPage(0)">First</button>
-                <button class="btn btn-secondary btn-sm px-3"
-                        [disabled]="pageIndex === 0"
-                        (click)="goToPage(pageIndex - 1)">Prev</button>
+              <span class="text-sm text-ink-muted">per page</span>
+              <div class="flex gap-1 ml-3">
+                <button class="btn btn-ghost btn-sm" [disabled]="pageIndex === 0" (click)="goToPage(0)">First</button>
+                <button class="btn btn-ghost btn-sm" [disabled]="pageIndex === 0" (click)="goToPage(pageIndex - 1)">Prev</button>
                 <span class="flex items-center px-2 text-sm text-ink tabular-nums">
                   {{ pageIndex + 1 }} / {{ totalPages() || 1 }}
                 </span>
-                <button class="btn btn-secondary btn-sm px-3"
-                        [disabled]="(pageIndex + 1) * pageSize >= totalElements()"
-                        (click)="goToPage(pageIndex + 1)">Next</button>
-                <button class="btn btn-secondary btn-sm px-3"
-                        [disabled]="(pageIndex + 1) * pageSize >= totalElements()"
-                        (click)="goToPage(totalPages() - 1)">Last</button>
+                <button class="btn btn-ghost btn-sm" [disabled]="(pageIndex + 1) * pageSize >= totalElements()" (click)="goToPage(pageIndex + 1)">Next</button>
+                <button class="btn btn-ghost btn-sm" [disabled]="(pageIndex + 1) * pageSize >= totalElements()" (click)="goToPage(totalPages() - 1)">Last</button>
               </div>
             </div>
           </div>

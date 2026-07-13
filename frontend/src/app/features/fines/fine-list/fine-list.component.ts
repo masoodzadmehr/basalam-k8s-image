@@ -11,74 +11,64 @@ import type { Fine } from '../../../core/models';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <div class="p-4 md:p-6">
-      <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+    <div class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 class="font-display text-2xl font-bold text-ink mb-1">
+          <h1 class="font-display text-2xl font-extrabold text-ink">
             {{ isAllMode ? 'All Fines' : 'My Fines' }}
           </h1>
-          <p class="text-sm text-slate-light">
+          <p class="text-ink-muted text-sm mt-1">
             {{ isAllMode ? 'Manage all library fines' : 'Your outstanding fines' }}
           </p>
         </div>
         @if (!isAllMode) {
-          <a routerLink="/fines/all" class="btn btn-secondary btn-sm">View All</a>
+          <a routerLink="/fines/all" class="btn btn-ghost btn-sm">View All</a>
         }
       </div>
 
-      <!-- Loading -->
       @if (loading()) {
         <div class="flex justify-center py-16">
-          <div class="w-10 h-10 border-[3px] border-parchment border-t-brass rounded-full animate-spin"></div>
+          <div class="animate-spin rounded-full h-8 w-8 border-2 border-ink/15 border-t-ink"></div>
         </div>
-      }
-      @else if (fines().length === 0) {
-        <div class="card text-center py-12 text-slate-light">
-          <p class="text-lg mb-2">No fines found</p>
-          <p>Any outstanding fines will appear here.</p>
+      } @else if (fines().length === 0) {
+        <div class="empty-state">
+          <div class="empty-state-icon">&#x1F4B0;</div>
+          <h3 class="empty-state-title">No fines found</h3>
+          <p class="empty-state-text">Any outstanding fines will appear here.</p>
         </div>
-      }
-      @else {
-        <!-- Desktop Table -->
-        <div class="hidden md:block card !p-0 overflow-hidden">
-          <table class="w-full">
+      } @else {
+        <div class="card-flush overflow-hidden hidden md:block">
+          <table class="table-root">
             <thead>
-              <tr class="border-b border-parchment bg-parchment/30">
-                @if (isAllMode) {
-                  <th class="table-header text-left px-4 py-3 sticky top-0 bg-parchment/30">User</th>
-                }
-                <th class="table-header text-left px-4 py-3 sticky top-0 bg-parchment/30">Book</th>
-                <th class="table-header text-right px-4 py-3 sticky top-0 bg-parchment/30">Amount</th>
-                <th class="table-header text-left px-4 py-3 sticky top-0 bg-parchment/30">Days Overdue</th>
-                <th class="table-header text-left px-4 py-3 sticky top-0 bg-parchment/30">Status</th>
-                @if (canManageFines()) {
-                  <th class="table-header text-left px-4 py-3 sticky top-0 bg-parchment/30">Actions</th>
-                }
+              <tr>
+                @if (isAllMode) { <th>User</th> }
+                <th>Book</th>
+                <th class="text-right">Amount</th>
+                <th>Days Overdue</th>
+                <th>Status</th>
+                @if (canManageFines()) { <th>Actions</th> }
               </tr>
             </thead>
             <tbody>
-              @for (f of fines(); track f.id; let i = $index) {
-                <tr class="border-b border-parchment/50 transition-colors hover:bg-parchment/10"
-                    [class.even:bg-parchment/30]="i % 2 === 0">
-                  @if (isAllMode) {
-                    <td class="px-4 py-3 text-sm">{{ f.username }}</td>
-                  }
-                  <td class="px-4 py-3 text-sm font-medium">{{ f.bookTitle }}</td>
-                  <td class="px-4 py-3 text-sm text-right font-bold">
+              @for (f of fines(); track f.id) {
+                <tr>
+                  @if (isAllMode) { <td>{{ f.username }}</td> }
+                  <td class="font-medium">{{ f.bookTitle }}</td>
+                  <td class="text-right font-mono font-medium">
                     {{ f.amount | number:'1.2-2' }}
                   </td>
-                  <td class="px-4 py-3 text-sm text-slate-light">{{ f.daysOverdue }}</td>
-                  <td class="px-4 py-3">
+                  <td class="text-ink-muted">{{ f.daysOverdue }}</td>
+                  <td>
                     @if (f.paid) {
-                      <span class="badge badge-active">Paid</span>
+                      <span class="badge badge-success">Paid</span>
                     } @else {
-                      <span class="badge badge-pending">Unpaid</span>
+                      <span class="badge badge-warning">Unpaid</span>
                     }
                   </td>
                   @if (canManageFines()) {
-                    <td class="px-4 py-3">
+                    <td>
                       @if (!f.paid) {
-                        <button class="btn btn-brass btn-sm" (click)="payFine(f)">Pay</button>
+                        <button class="btn btn-accent btn-sm" (click)="payFine(f)">Pay</button>
                       }
                     </td>
                   }
@@ -88,50 +78,38 @@ import type { Fine } from '../../../core/models';
           </table>
         </div>
 
-        <!-- Mobile Cards -->
         <div class="md:hidden flex flex-col gap-3">
           @for (f of fines(); track f.id) {
-            <div class="card p-4">
+            <div class="card !p-4">
               @if (isAllMode) {
-                <p class="text-xs text-slate-light mb-1">User: <span class="text-ink font-medium">{{ f.username }}</span></p>
+                <p class="text-xs text-ink-muted mb-1">{{ f.username }}</p>
               }
               <h3 class="font-display font-semibold text-base mb-2">{{ f.bookTitle }}</h3>
-              <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-light mb-3">
+              <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-muted mb-3">
                 <span>{{ f.daysOverdue }} days overdue</span>
-                <span class="font-bold text-ink">{{ f.amount | number:'1.2-2' }}</span>
+                <span class="font-bold text-ink font-mono">{{ f.amount | number:'1.2-2' }}</span>
               </div>
               <div class="flex items-center justify-between">
                 @if (f.paid) {
-                  <span class="badge badge-active">Paid</span>
+                  <span class="badge badge-success">Paid</span>
                 } @else {
-                  <span class="badge badge-pending">Unpaid</span>
+                  <span class="badge badge-warning">Unpaid</span>
                 }
                 @if (canManageFines() && !f.paid) {
-                  <button class="btn btn-brass btn-sm" (click)="payFine(f)">Pay</button>
+                  <button class="btn btn-accent btn-sm" (click)="payFine(f)">Pay</button>
                 }
               </div>
             </div>
           }
         </div>
 
-        <!-- Pagination -->
         @if (totalElements() > pageSize) {
-          <div class="flex items-center justify-center gap-2 mt-6">
-            <button class="btn btn-secondary btn-sm"
-                    [disabled]="pageIndex === 0"
-                    (click)="goToPage(0)">First</button>
-            <button class="btn btn-secondary btn-sm"
-                    [disabled]="pageIndex === 0"
-                    (click)="goToPage(pageIndex - 1)">Prev</button>
-            <span class="text-sm text-slate-light px-2">
-              Page {{ pageIndex + 1 }} of {{ totalPages() }}
-            </span>
-            <button class="btn btn-secondary btn-sm"
-                    [disabled]="pageIndex + 1 >= totalPages()"
-                    (click)="goToPage(pageIndex + 1)">Next</button>
-            <button class="btn btn-secondary btn-sm"
-                    [disabled]="pageIndex + 1 >= totalPages()"
-                    (click)="goToPage(totalPages() - 1)">Last</button>
+          <div class="flex items-center justify-center gap-2">
+            <button class="btn btn-ghost btn-sm" [disabled]="pageIndex === 0" (click)="goToPage(0)">First</button>
+            <button class="btn btn-ghost btn-sm" [disabled]="pageIndex === 0" (click)="goToPage(pageIndex - 1)">Prev</button>
+            <span class="text-sm text-ink-muted px-2">Page {{ pageIndex + 1 }} of {{ totalPages() }}</span>
+            <button class="btn btn-ghost btn-sm" [disabled]="pageIndex + 1 >= totalPages()" (click)="goToPage(pageIndex + 1)">Next</button>
+            <button class="btn btn-ghost btn-sm" [disabled]="pageIndex + 1 >= totalPages()" (click)="goToPage(totalPages() - 1)">Last</button>
           </div>
         }
       }

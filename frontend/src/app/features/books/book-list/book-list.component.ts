@@ -18,11 +18,16 @@ import type { Book } from '../../../core/models';
     <div class="space-y-6">
       <!-- Header -->
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 class="font-display text-2xl text-ink">Books</h1>
+        <div>
+          <h1 class="font-display text-2xl font-extrabold text-ink">Books</h1>
+          <p class="text-ink-muted text-sm mt-1">
+            {{ totalElements() }} book{{ totalElements() !== 1 ? 's' : '' }} in the catalog
+          </p>
+        </div>
         @if (canManage()) {
-          <a routerLink="/books/new" class="btn btn-primary inline-flex items-center gap-2 self-start">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          <a routerLink="/books/new" class="btn btn-primary self-start">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
             Add Book
           </a>
@@ -31,98 +36,132 @@ import type { Book } from '../../../core/models';
 
       <!-- Search -->
       <div class="relative">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </div>
         <input
           type="text"
           [formControl]="searchControl"
           placeholder="Search by title, author, or ISBN..."
-          class="input-field pl-10 w-full"
+          class="input-field !pr-9"
         />
+        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-ink-muted">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </div>
       </div>
 
       <!-- Loading -->
       @if (loading()) {
-        <div class="flex justify-center py-12">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-wood"></div>
+        <div class="flex justify-center py-16">
+          <div class="animate-spin rounded-full h-8 w-8 border-2 border-ink/15 border-t-ink"></div>
         </div>
       }
 
       <!-- Empty -->
       @if (!loading() && books().length === 0) {
-        <div class="card text-center py-12 text-slate-light">
-          No books found.
+        <div class="empty-state">
+          <div class="empty-state-icon">&#x1F4DA;</div>
+          <h3 class="empty-state-title">No books found</h3>
+          <p class="empty-state-text">
+            @if (searchControl.value) {
+              No results for "{{ searchControl.value }}". Try a different search term.
+            } @else {
+              The catalog is empty. Add your first book to get started.
+            }
+          </p>
         </div>
       }
 
       <!-- Book Grid -->
       @if (!loading() && books().length > 0) {
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           @for (book of books(); track book.id) {
             <div
-              class="bg-white rounded-xl shadow-sm border-l-4 cursor-pointer hover:shadow-md transition-shadow p-5 space-y-3"
-              [style.border-left-color]="shelfColors[bookColorIndices.get(book.id) ?? 0]"
+              class="card !p-0 cursor-pointer group transition-shadow duration-150 hover:shadow-md"
               (click)="onRowClick(book)"
             >
-              <!-- Title -->
-              <h3 class="font-display text-lg text-ink leading-snug">{{ book.title }}</h3>
+              <div class="flex">
+                <!-- Call number spine -->
+                <div class="flex-shrink-0 w-12 flex items-stretch">
+                  <div class="w-full rounded-r-md flex items-center justify-center text-white text-[0.625rem]
+                              font-mono font-semibold tracking-widest leading-tight p-1"
+                       [style.background]="spineColors[spineColorIndex(book.id)]">
+                    <span class="[writing-mode:vertical-rl] rotate-180">
+                      {{ isbnLastFour(book.isbn) }}
+                    </span>
+                  </div>
+                </div>
 
-              <!-- Author -->
-              <p class="text-sm text-slate-light">by {{ book.author }}</p>
+                <!-- Book info -->
+                <div class="flex-1 p-4 min-w-0">
+                  <h3 class="font-display text-lg font-bold text-ink leading-snug mb-1
+                             group-hover:text-accent transition-colors duration-150">
+                    {{ book.title }}
+                  </h3>
+                  <p class="text-sm text-ink-light mb-3">{{ book.author }}</p>
 
-              <!-- ISBN -->
-              <p class="text-xs text-slate-light font-mono">ISBN: {{ book.isbn }}</p>
+                  <div class="flex items-center gap-2 text-[0.6875rem] text-ink-muted font-mono mb-3">
+                    <span>ISBN {{ book.isbn }}</span>
+                    @if (book.publisher || book.publicationYear) {
+                      <span>&middot;</span>
+                      <span>
+                        @if (book.publisher) { {{ book.publisher }} }
+                        @if (book.publicationYear) { {{ book.publicationYear }} }
+                      </span>
+                    }
+                  </div>
 
-              <!-- Publisher & Year -->
-              @if (book.publisher || book.publicationYear) {
-                <p class="text-xs text-slate-light">
-                  @if (book.publisher) { {{ book.publisher }} }
-                  @if (book.publisher && book.publicationYear) { &middot; }
-                  @if (book.publicationYear) { {{ book.publicationYear }} }
-                </p>
-              }
-
-              <!-- Available Copies Badge -->
-              <div>
-                @if (book.availableCopies > 0) {
-                  <span class="badge badge-available">{{ book.availableCopies }} available</span>
-                } @else {
-                  <span class="badge badge-borrowed">Unavailable</span>
-                }
+                  <!-- Availability -->
+                  <div class="flex items-center gap-2">
+                    @if (book.availableCopies > 0) {
+                      <div class="flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-success"></span>
+                        <span class="text-xs text-success font-medium">{{ book.availableCopies }} available</span>
+                      </div>
+                    } @else {
+                      <div class="flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-danger"></span>
+                        <span class="text-xs text-danger font-medium">Unavailable</span>
+                      </div>
+                    }
+                    <span class="text-xs text-ink-muted">
+                      / {{ book.copiesCount }} total
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           }
         </div>
 
         <!-- Pagination -->
-        <div class="flex items-center justify-center gap-4 py-4">
-          <button
-            class="btn btn-secondary btn-sm"
-            [disabled]="pageIndex === 0"
-            (click)="prevPage()"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
-            Prev
-          </button>
-          <span class="text-sm text-slate-light">
-            Page {{ pageIndex + 1 }} of {{ totalPages() || 1 }}
-          </span>
-          <button
-            class="btn btn-secondary btn-sm"
-            [disabled]="(pageIndex + 1) >= totalPages()"
-            (click)="nextPage()"
-          >
-            Next
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
+        @if (totalPages() > 1) {
+          <div class="flex items-center justify-center gap-3 py-2">
+            <button
+              class="btn btn-ghost btn-sm"
+              [disabled]="pageIndex === 0"
+              (click)="prevPage()"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+              </svg>
+              Prev
+            </button>
+            <span class="text-sm text-ink-muted tabular-nums">
+              {{ pageIndex + 1 }} of {{ totalPages() }}
+            </span>
+            <button
+              class="btn btn-ghost btn-sm"
+              [disabled]="(pageIndex + 1) >= totalPages()"
+              (click)="nextPage()"
+            >
+              Next
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </button>
+          </div>
+        }
       }
     </div>
   `,
@@ -143,8 +182,7 @@ export class BookListComponent implements OnInit {
   pageIndex = 0;
   pageSize = 10;
 
-  shelfColors = ['#C8963E', '#5C4033', '#2D6A4F', '#B23B3B', '#3D4047', '#7B5F4F'];
-  readonly bookColorIndices = new Map<number, number>();
+  spineColors = ['#2C5282', '#1A365D', '#3A6BA5', '#4A7DB5', '#1E4D8C', '#0D3B6F'];
 
   ngOnInit(): void {
     this.loadBooks();
@@ -170,11 +208,6 @@ export class BookListComponent implements OnInit {
       next: (res) => {
         this.books.set(res.content);
         this.totalElements.set(res.totalElements);
-        for (const book of res.content) {
-          if (!this.bookColorIndices.has(book.id)) {
-            this.bookColorIndices.set(book.id, Math.floor(Math.random() * this.shelfColors.length));
-          }
-        }
         this.loading.set(false);
       },
       error: () => {
@@ -210,5 +243,14 @@ export class BookListComponent implements OnInit {
   canManage(): boolean {
     const role = this.userRole();
     return role === 'LIBRARIAN' || role === 'ADMIN';
+  }
+
+  spineColorIndex(bookId: number): number {
+    return Math.abs(bookId * 31 + 7) % this.spineColors.length;
+  }
+
+  isbnLastFour(isbn: string): string {
+    const digits = (isbn || '').replace(/\D/g, '');
+    return digits.slice(-4) || '----';
   }
 }

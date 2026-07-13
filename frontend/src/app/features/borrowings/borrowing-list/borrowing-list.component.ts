@@ -11,10 +11,11 @@ import type { Borrowing } from '../../../core/models';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <div class="p-4 md:p-6">
-      <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+    <div class="space-y-6">
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 class="font-display text-2xl font-bold text-ink mb-1">
+          <h1 class="font-display text-2xl font-extrabold text-ink">
             @if (isOverdueMode) {
               Overdue Borrowings
             } @else if (isAllMode) {
@@ -23,20 +24,20 @@ import type { Borrowing } from '../../../core/models';
               My Borrowings
             }
           </h1>
-          <p class="text-sm text-slate-light">
+          <p class="text-ink-muted text-sm mt-1">
             @if (isOverdueMode) {
               Items past their due date
             } @else if (isAllMode) {
-              Manage all library borrowings
+              {{ totalElements() }} borrowing{{ totalElements() !== 1 ? 's' : '' }}
             } @else {
               Your currently borrowed books
             }
           </p>
         </div>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
           @if (!isOverdueMode) {
             <select
-              class="input-field w-auto min-w-[140px]"
+              class="input-field w-auto min-w-[150px]"
               [value]="statusFilter()"
               (change)="onStatusFilterChange($any($event.target).value)">
               <option value="">All Statuses</option>
@@ -45,69 +46,74 @@ import type { Borrowing } from '../../../core/models';
               <option value="RETURNED">Returned</option>
             </select>
           }
-          @if (canManageBorrowings() && !isAllMode) {
-            <a routerLink="/borrowings/all" class="btn btn-secondary btn-sm">View All</a>
-          }
-          @if (canManageBorrowings() && !isOverdueMode) {
-            <a routerLink="/borrowings/overdue" class="btn btn-secondary btn-sm">Overdue</a>
-          }
-          <a routerLink="/borrowings/new" class="btn btn-primary btn-sm">+ Borrow</a>
+          <div class="flex gap-1">
+            @if (canManageBorrowings() && !isAllMode) {
+              <a routerLink="/borrowings/all" class="btn btn-ghost btn-sm">View All</a>
+            }
+            @if (canManageBorrowings() && !isOverdueMode) {
+              <a routerLink="/borrowings/overdue" class="btn btn-ghost btn-sm">Overdue</a>
+            }
+          </div>
+          <a routerLink="/borrowings/new" class="btn btn-accent btn-sm">Borrow</a>
         </div>
       </div>
 
       <!-- Loading -->
       @if (loading()) {
         <div class="flex justify-center py-16">
-          <div class="w-10 h-10 border-[3px] border-parchment border-t-brass rounded-full animate-spin"></div>
+          <div class="animate-spin rounded-full h-8 w-8 border-2 border-ink/15 border-t-ink"></div>
         </div>
       }
-      @else if (borrowings().length === 0) {
-        <div class="card text-center py-12 text-slate-light">
-          <p class="text-lg mb-2">No borrowings found</p>
-          <p>Active borrowings will appear here.</p>
+
+      <!-- Empty -->
+      @if (!loading() && borrowings().length === 0) {
+        <div class="empty-state">
+          <div class="empty-state-icon">&#x1F4D6;</div>
+          <h3 class="empty-state-title">No borrowings found</h3>
+          <p class="empty-state-text">Active borrowings will appear here.</p>
         </div>
       }
-      @else {
-        <!-- Desktop Table -->
-        <div class="hidden md:block card !p-0 overflow-hidden">
-          <table class="w-full">
+
+      <!-- Desktop Table -->
+      @if (!loading() && borrowings().length > 0) {
+        <div class="card-flush overflow-hidden">
+          <table class="table-root">
             <thead>
-              <tr class="border-b border-parchment bg-parchment/30">
+              <tr>
                 @if (isAllMode || isOverdueMode) {
-                  <th class="table-header text-left px-4 py-3 sticky top-0 bg-parchment/30">User</th>
+                  <th>User</th>
                 }
-                <th class="table-header text-left px-4 py-3 sticky top-0 bg-parchment/30">Book</th>
-                <th class="table-header text-left px-4 py-3 sticky top-0 bg-parchment/30">Borrow Date</th>
-                <th class="table-header text-left px-4 py-3 sticky top-0 bg-parchment/30">Due Date</th>
-                <th class="table-header text-left px-4 py-3 sticky top-0 bg-parchment/30">Status</th>
-                <th class="table-header text-left px-4 py-3 sticky top-0 bg-parchment/30">Actions</th>
+                <th>Book</th>
+                <th>Borrow Date</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th class="hidden sm:table-cell">Actions</th>
               </tr>
             </thead>
             <tbody>
-              @for (b of borrowings(); track b.id; let i = $index) {
-                <tr class="border-b border-parchment/50 transition-colors hover:bg-parchment/10"
-                    [class.even:bg-parchment/30]="i % 2 === 0">
+              @for (b of borrowings(); track b.id) {
+                <tr>
                   @if (isAllMode || isOverdueMode) {
-                    <td class="px-4 py-3 text-sm">{{ b.username }}</td>
+                    <td>{{ b.username }}</td>
                   }
-                  <td class="px-4 py-3 text-sm font-medium">{{ b.bookTitle }}</td>
-                  <td class="px-4 py-3 text-sm text-slate-light">{{ b.borrowDate | date:'mediumDate' }}</td>
-                  <td class="px-4 py-3 text-sm"
-                      [class.text-danger]="isOverdueMode || b.status === 'OVERDUE'">
-                    {{ b.dueDate | date:'mediumDate' }}
+                  <td class="font-medium">{{ b.bookTitle }}</td>
+                  <td class="text-ink-muted text-xs">{{ b.borrowDate | date:'yyyy/MM/dd' }}</td>
+                  <td [class.text-danger]="isOverdueMode || b.status === 'OVERDUE'"
+                      class="text-xs">
+                    {{ b.dueDate | date:'yyyy/MM/dd' }}
                   </td>
-                  <td class="px-4 py-3">
+                  <td>
                     <span class="badge" [ngClass]="getStatusBadgeClass(b.status)">
                       {{ b.status | titlecase }}
                     </span>
                   </td>
-                  <td class="px-4 py-3">
-                    <div class="flex gap-1.5">
+                  <td class="hidden sm:table-cell">
+                    <div class="flex gap-1">
                       @if (canExtend(b)) {
-                        <button class="btn btn-secondary btn-sm" (click)="extendBorrowing(b)">Extend</button>
+                        <button class="btn btn-ghost btn-sm" (click)="extendBorrowing(b)">Extend</button>
                       }
                       @if (canReturn(b)) {
-                        <button class="btn btn-brass btn-sm" (click)="returnBook(b)">Return</button>
+                        <button class="btn btn-accent btn-sm" (click)="returnBook(b)">Return</button>
                       }
                     </div>
                   </td>
@@ -116,64 +122,50 @@ import type { Borrowing } from '../../../core/models';
             </tbody>
           </table>
         </div>
+      }
 
-        <!-- Mobile Cards -->
-        <div class="md:hidden flex flex-col gap-3">
+      <!-- Mobile Cards -->
+      @if (!loading() && borrowings().length > 0) {
+        <div class="sm:hidden flex flex-col gap-3">
           @for (b of borrowings(); track b.id) {
-            <div class="card p-4">
+            <div class="card !p-4">
               @if (isAllMode || isOverdueMode) {
-                <p class="text-xs text-slate-light mb-1">User: <span class="text-ink font-medium">{{ b.username }}</span></p>
+                <p class="text-xs text-ink-muted mb-1">{{ b.username }}</p>
               }
               <h3 class="font-display font-semibold text-base mb-2">{{ b.bookTitle }}</h3>
-              <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-light mb-3">
-                <span>Borrowed: {{ b.borrowDate | date:'mediumDate' }}</span>
-                <span [class.text-danger]="isOverdueMode || b.status === 'OVERDUE'">Due: {{ b.dueDate | date:'mediumDate' }}</span>
+              <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-muted mb-3">
+                <span>Borrowed: {{ b.borrowDate | date:'yyyy/MM/dd' }}</span>
+                <span [class.text-danger]="isOverdueMode || b.status === 'OVERDUE'">
+                  Due: {{ b.dueDate | date:'yyyy/MM/dd' }}
+                </span>
               </div>
               <div class="flex items-center justify-between">
                 <span class="badge" [ngClass]="getStatusBadgeClass(b.status)">
                   {{ b.status | titlecase }}
                 </span>
-                <div class="flex gap-1.5">
+                <div class="flex gap-1">
                   @if (canExtend(b)) {
-                    <button class="btn btn-secondary btn-sm" (click)="extendBorrowing(b)">Extend</button>
+                    <button class="btn btn-ghost btn-sm" (click)="extendBorrowing(b)">Extend</button>
                   }
                   @if (canReturn(b)) {
-                    <button class="btn btn-brass btn-sm" (click)="returnBook(b)">Return</button>
+                    <button class="btn btn-accent btn-sm" (click)="returnBook(b)">Return</button>
                   }
                 </div>
               </div>
             </div>
           }
         </div>
+      }
 
-        <!-- Pagination -->
-        @if (totalElements() > pageSize) {
-          <div class="flex items-center justify-center gap-2 mt-6">
-            <button class="btn btn-secondary btn-sm"
-                    [disabled]="pageIndex === 0"
-                    (click)="goToPage(0)">
-              First
-            </button>
-            <button class="btn btn-secondary btn-sm"
-                    [disabled]="pageIndex === 0"
-                    (click)="goToPage(pageIndex - 1)">
-              Prev
-            </button>
-            <span class="text-sm text-slate-light px-2">
-              Page {{ pageIndex + 1 }} of {{ totalPages() }}
-            </span>
-            <button class="btn btn-secondary btn-sm"
-                    [disabled]="pageIndex + 1 >= totalPages()"
-                    (click)="goToPage(pageIndex + 1)">
-              Next
-            </button>
-            <button class="btn btn-secondary btn-sm"
-                    [disabled]="pageIndex + 1 >= totalPages()"
-                    (click)="goToPage(totalPages() - 1)">
-              Last
-            </button>
-          </div>
-        }
+      <!-- Pagination -->
+      @if (!loading() && totalElements() > pageSize) {
+        <div class="flex items-center justify-center gap-2">
+          <button class="btn btn-ghost btn-sm" [disabled]="pageIndex === 0" (click)="goToPage(0)">First</button>
+          <button class="btn btn-ghost btn-sm" [disabled]="pageIndex === 0" (click)="goToPage(pageIndex - 1)">Prev</button>
+          <span class="text-sm text-ink-muted tabular-nums px-2">Page {{ pageIndex + 1 }} of {{ totalPages() }}</span>
+          <button class="btn btn-ghost btn-sm" [disabled]="pageIndex + 1 >= totalPages()" (click)="goToPage(pageIndex + 1)">Next</button>
+          <button class="btn btn-ghost btn-sm" [disabled]="pageIndex + 1 >= totalPages()" (click)="goToPage(totalPages() - 1)">Last</button>
+        </div>
       }
     </div>
   `,
@@ -275,11 +267,11 @@ export class BorrowingListComponent implements OnInit {
 
   getStatusBadgeClass(status: string): string {
     switch (status) {
-      case 'BORROWED': return 'badge-borrowed';
-      case 'EXTENDED': return 'badge-available';
-      case 'OVERDUE': return 'badge-overdue';
-      case 'RETURNED': return 'badge-returned';
-      default: return '';
+      case 'BORROWED': return 'badge-warning';
+      case 'EXTENDED': return 'badge-info';
+      case 'OVERDUE': return 'badge-danger';
+      case 'RETURNED': return 'badge-success';
+      default: return 'badge-neutral';
     }
   }
 

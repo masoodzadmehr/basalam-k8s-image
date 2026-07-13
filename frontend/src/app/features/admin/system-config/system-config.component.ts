@@ -10,82 +10,79 @@ import type { BorrowingConfig } from '../../../core/models';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <div class="max-w-2xl mx-auto py-6 px-4 sm:px-6">
-      <h1 class="font-display text-2xl font-bold text-ink mb-6">System Configuration</h1>
+    <div class="max-w-2xl mx-auto space-y-6">
+      <div>
+        <h1 class="font-display text-2xl font-extrabold text-ink">System Configuration</h1>
+        <p class="text-ink-muted text-sm mt-1">Control borrowing rules for all users</p>
+      </div>
 
       @if (loading()) {
-        <div class="flex justify-center py-12">
-          <div class="animate-spin h-8 w-8 border-2 border-brass border-t-transparent rounded-full"></div>
+        <div class="flex justify-center py-16">
+          <div class="animate-spin h-8 w-8 border-2 border-ink/15 border-t-ink rounded-full"></div>
         </div>
       } @else {
-        <div class="card">
-          <div class="p-6 border-b border-wood/10 bg-brass-light/20">
-            <h2 class="font-display text-lg font-semibold text-ink">Borrowing Configuration</h2>
-            <p class="text-sm text-slate-light mt-1">These settings control borrowing rules for all users</p>
-          </div>
-          <div class="p-6">
-            <form [formGroup]="configForm" (ngSubmit)="onSubmit()">
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div>
-                  <label class="block text-sm font-medium text-slate mb-1">Max Books Per User</label>
-                  <input type="number" formControlName="maxBooksPerUser"
-                         class="input-field w-full" min="1" />
-                  @if (configForm.get('maxBooksPerUser')?.invalid) {
-                    <p class="text-danger text-xs mt-1">Value must be at least 1</p>
-                  }
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-slate mb-1">Loan Duration (days)</label>
-                  <input type="number" formControlName="loanDurationDays"
-                         class="input-field w-full" min="1" />
-                  @if (configForm.get('loanDurationDays')?.invalid) {
-                    <p class="text-danger text-xs mt-1">Value must be at least 1</p>
-                  }
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-slate mb-1">Extend Duration (days)</label>
-                  <input type="number" formControlName="extendDurationDays"
-                         class="input-field w-full" min="1" />
-                  @if (configForm.get('extendDurationDays')?.invalid) {
-                    <p class="text-danger text-xs mt-1">Value must be at least 1</p>
-                  }
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-slate mb-1">Max Extensions</label>
-                  <input type="number" formControlName="maxExtensions"
-                         class="input-field w-full" min="0" />
-                  @if (configForm.get('maxExtensions')?.invalid) {
-                    <p class="text-danger text-xs mt-1">Value must be 0 or more</p>
-                  }
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-slate mb-1">Fine Per Day (IRR)</label>
-                  <input type="number" formControlName="finePerDayIrt"
-                         class="input-field w-full" min="0" />
-                  @if (configForm.get('finePerDayIrt')?.invalid) {
-                    <p class="text-danger text-xs mt-1">Value must be 0 or more</p>
-                  }
-                </div>
+        <div class="card !p-6">
+          <form [formGroup]="configForm" (ngSubmit)="onSubmit()" class="space-y-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-medium text-ink-light mb-1.5">Max Books Per User</label>
+                <input type="number" formControlName="maxBooksPerUser"
+                       class="input-field" min="1" />
+                @if (configForm.get('maxBooksPerUser')?.invalid) {
+                  <p class="text-danger text-xs mt-1">At least 1</p>
+                }
               </div>
 
-              <div class="flex justify-end mt-8">
-                <button type="submit" class="btn btn-primary"
-                        [disabled]="configForm.invalid || saving()">
-                  @if (saving()) {
-                    <span class="inline-block animate-spin h-4 w-4 border-2 border-white
-                                 border-t-transparent rounded-full mr-2 align-middle"></span>
-                    Saving...
-                  } @else {
-                    Save Configuration
-                  }
-                </button>
+              <div>
+                <label class="block text-sm font-medium text-ink-light mb-1.5">Loan Duration (days)</label>
+                <input type="number" formControlName="loanDurationDays"
+                       class="input-field" min="1" />
+                @if (configForm.get('loanDurationDays')?.invalid) {
+                  <p class="text-danger text-xs mt-1">At least 1</p>
+                }
               </div>
-            </form>
-          </div>
+
+              <div>
+                <label class="block text-sm font-medium text-ink-light mb-1.5">Extend Duration (days)</label>
+                <input type="number" formControlName="extendDurationDays"
+                       class="input-field" min="1" />
+                @if (configForm.get('extendDurationDays')?.invalid) {
+                  <p class="text-danger text-xs mt-1">At least 1</p>
+                }
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-ink-light mb-1.5">Max Extensions</label>
+                <input type="number" formControlName="maxExtensions"
+                       class="input-field" min="0" />
+                @if (configForm.get('maxExtensions')?.invalid) {
+                  <p class="text-danger text-xs mt-1">0 or more</p>
+                }
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-ink-light mb-1.5">Fine Per Day (IRR)</label>
+                <input type="number" formControlName="finePerDayIrt"
+                       class="input-field" min="0" />
+                @if (configForm.get('finePerDayIrt')?.invalid) {
+                  <p class="text-danger text-xs mt-1">0 or more</p>
+                }
+              </div>
+            </div>
+
+            <div class="flex justify-end pt-4 border-t border-border">
+              <button type="submit" class="btn btn-accent"
+                      [disabled]="configForm.invalid || saving()">
+                @if (saving()) {
+                  <span class="inline-block animate-spin h-4 w-4 border-2 border-white
+                               border-t-transparent rounded-full mr-2 align-middle"></span>
+                  Saving...
+                } @else {
+                  Save Configuration
+                }
+              </button>
+            </div>
+          </form>
         </div>
       }
     </div>

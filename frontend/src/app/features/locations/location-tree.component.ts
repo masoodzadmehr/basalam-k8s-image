@@ -11,128 +11,74 @@ import type { Location, User } from '../../core/models';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <div class="max-w-5xl mx-auto py-6 px-4 sm:px-6">
-      <!-- Header -->
-      <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <h1 class="font-display text-2xl font-bold text-ink">Locations</h1>
+    <div class="space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 class="font-display text-2xl font-extrabold text-ink">Locations</h1>
+          <p class="text-ink-muted text-sm mt-1">Physical library layout — halls, bookshelves, and shelves</p>
+        </div>
         @if (canManageLocations()) {
-          <button class="btn btn-primary btn-sm"
-                  (click)="openAddForm('HALL', null)">
-            + Add Hall
+          <button class="btn btn-accent btn-sm" (click)="openAddForm('HALL', null)">
+            Add Hall
           </button>
         }
       </div>
 
       <!-- Add / Edit forms -->
-      <div class="card mb-6 p-6">
-        <!-- Add Form -->
-        @if (showAddForm()) {
-          <div class="mb-4 border border-brass/30 rounded-lg p-4 bg-brass-light/30">
-            <h3 class="font-display text-lg font-semibold text-ink mb-4">Add {{ addFormType() }}</h3>
-            <form [formGroup]="addForm" (ngSubmit)="onAddSubmit()" class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-slate mb-1">Name</label>
-                <input type="text" formControlName="name"
-                       class="input-field w-full"
-                       placeholder="Enter name" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate mb-1">Description</label>
-                <input type="text" formControlName="description"
-                       class="input-field w-full"
-                       placeholder="Enter description" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate mb-1">Librarian (optional)</label>
-                <select formControlName="librarianUserId"
-                        class="input-field w-full">
-                  <option [ngValue]="null">None</option>
-                  @for (lib of librarians(); track lib.id) {
-                    <option [ngValue]="lib.id">{{ lib.firstName }} {{ lib.lastName }}</option>
-                  }
-                </select>
-              </div>
-              <div class="flex justify-end gap-3">
-                <button type="button" class="btn btn-secondary btn-sm" (click)="cancelAdd()">Cancel</button>
-                <button type="submit" class="btn btn-primary btn-sm"
-                        [disabled]="addForm.invalid || saving()">
-                  @if (saving()) {
-                    Saving...
-                  } @else {
-                    Save
-                  }
-                </button>
-              </div>
-            </form>
-          </div>
-        }
-
-        <!-- Edit Form -->
-        @if (showEditForm()) {
-          <div class="mb-4 border border-brass/30 rounded-lg p-4 bg-brass-light/30">
-            <h3 class="font-display text-lg font-semibold text-ink mb-4">Edit {{ editFormType() }}</h3>
-            <form [formGroup]="editForm" (ngSubmit)="onEditSubmit()" class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-slate mb-1">Name</label>
-                <input type="text" formControlName="name"
-                       class="input-field w-full"
-                       placeholder="Enter name" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate mb-1">Description</label>
-                <input type="text" formControlName="description"
-                       class="input-field w-full"
-                       placeholder="Enter description" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate mb-1">Librarian (optional)</label>
-                <select formControlName="librarianUserId"
-                        class="input-field w-full">
-                  <option [ngValue]="null">None</option>
-                  @for (lib of librarians(); track lib.id) {
-                    <option [ngValue]="lib.id">{{ lib.firstName }} {{ lib.lastName }}</option>
-                  }
-                </select>
-              </div>
-              <div class="flex justify-end gap-3">
-                <button type="button" class="btn btn-secondary btn-sm" (click)="cancelEdit()">Cancel</button>
-                <button type="submit" class="btn btn-primary btn-sm"
-                        [disabled]="editForm.invalid || saving()">
-                  @if (saving()) {
-                    Saving...
-                  } @else {
-                    Update
-                  }
-                </button>
-              </div>
-            </form>
-          </div>
-        }
-      </div>
+      @if (showAddForm() || showEditForm()) {
+        <div class="card !p-5 border-accent/20 bg-accent-subtle">
+          <h3 class="font-display text-base font-bold text-ink mb-4">
+            @if (showAddForm()) { Add {{ addFormType() }} }
+            @if (showEditForm()) { Edit {{ editFormType() }} }
+          </h3>
+          <form [formGroup]="showAddForm() ? addForm : editForm"
+                (ngSubmit)="showAddForm() ? onAddSubmit() : onEditSubmit()"
+                class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-ink-light mb-1">Name</label>
+              <input type="text" [formControlName]="'name'"
+                     class="input-field" placeholder="Enter name" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-ink-light mb-1">Description</label>
+              <input type="text" [formControlName]="'description'"
+                     class="input-field" placeholder="Enter description" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-ink-light mb-1">Librarian (optional)</label>
+              <select [formControlName]="'librarianUserId'" class="input-field">
+                <option [ngValue]="null">None</option>
+                @for (lib of librarians(); track lib.id) {
+                  <option [ngValue]="lib.id">{{ lib.firstName }} {{ lib.lastName }}</option>
+                }
+              </select>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+              <button type="button" class="btn btn-ghost btn-sm" (click)="cancelAdd(); cancelEdit()">Cancel</button>
+              <button type="submit" class="btn btn-accent btn-sm"
+                      [disabled]="(showAddForm() ? addForm : editForm).invalid || saving()">
+                @if (saving()) { Saving... } @else { Save }
+              </button>
+            </div>
+          </form>
+        </div>
+      }
 
       <!-- Delete Confirm Modal -->
       @if (showDeleteConfirm()) {
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-ink/20 backdrop-blur-sm"
              (click)="cancelDelete()">
-          <div class="card p-6 max-w-sm w-full mx-4 shadow-xl"
-               (click)="$event.stopPropagation()">
-            <h3 class="font-display text-lg font-semibold text-ink mb-3">
+          <div class="card !p-6 max-w-sm w-full mx-4 shadow-xl" (click)="$event.stopPropagation()">
+            <h3 class="font-display text-lg font-bold text-ink mb-2">
               Delete {{ deleteTarget()?.type }}
             </h3>
-            <p class="text-slate mb-6">
-              Are you sure you want to delete "{{ deleteTarget()?.name }}"?
-              This action cannot be undone.
+            <p class="text-sm text-ink-light mb-5 leading-relaxed">
+              Are you sure you want to delete "{{ deleteTarget()?.name }}"? This cannot be undone.
             </p>
-            <div class="flex justify-end gap-3">
-              <button class="btn btn-secondary btn-sm" (click)="cancelDelete()">Cancel</button>
-              <button class="btn btn-danger btn-sm"
-                      [disabled]="deleting()"
-                      (click)="confirmDelete()">
-                @if (deleting()) {
-                  Deleting...
-                } @else {
-                  Delete
-                }
+            <div class="flex justify-end gap-2">
+              <button class="btn btn-ghost btn-sm" (click)="cancelDelete()">Cancel</button>
+              <button class="btn btn-accent btn-sm" [disabled]="deleting()" (click)="confirmDelete()">
+                @if (deleting()) { Deleting... } @else { Delete }
               </button>
             </div>
           </div>
@@ -141,49 +87,46 @@ import type { Location, User } from '../../core/models';
 
       <!-- Loading -->
       @if (loading()) {
-        <div class="flex justify-center py-12">
-          <div class="animate-spin h-8 w-8 border-2 border-brass border-t-transparent rounded-full"></div>
+        <div class="flex justify-center py-16">
+          <div class="animate-spin h-8 w-8 border-2 border-ink/15 border-t-ink rounded-full"></div>
         </div>
       }
 
       <!-- Tree -->
       @if (!loading()) {
-        <div class="card p-6">
+        <div class="card !p-0 overflow-hidden">
           @for (hall of halls(); track hall.id) {
             <!-- Hall Level -->
-            <div class="bg-wood/10 rounded mb-2">
-              <div class="flex items-center gap-2 p-3 border-b border-wood/20">
-                <button class="w-6 h-6 flex items-center justify-center text-ink hover:text-brass
-                               transition-colors leading-none text-sm"
+            <div class="border-b border-border last:border-b-0">
+              <div class="flex items-center gap-3 p-3 px-4 hover:bg-page transition-colors">
+                <button class="w-6 h-6 flex items-center justify-center text-ink-muted hover:text-ink
+                               transition-colors leading-none text-xs font-mono"
                         (click)="toggleHall(hall.id)">
                   {{ isHallExpanded(hall.id) ? '&#9660;' : '&#9654;' }}
                 </button>
-                <span class="text-lg">&#127968;</span>
+                <span class="text-base">&#x1F3E2;</span>
                 <div class="flex-1 flex flex-wrap items-center gap-2 min-w-0">
-                  <span class="font-bold text-ink">{{ hall.name }}</span>
+                  <span class="font-bold text-ink text-sm">{{ hall.name }}</span>
                   @if (hall.description) {
-                    <span class="text-slate-light text-sm">- {{ hall.description }}</span>
+                    <span class="text-ink-muted text-xs">&mdash; {{ hall.description }}</span>
                   }
                   @if (getLibrarianName(hall.librarianUserId)) {
-                    <span class="badge badge-active text-xs">
+                    <span class="badge badge-info text-[0.625rem]">
                       {{ getLibrarianName(hall.librarianUserId) }}
                     </span>
                   }
                 </div>
                 @if (canManageLocations()) {
-                  <div class="flex gap-1 flex-shrink-0">
+                  <div class="flex gap-0.5 flex-shrink-0">
                     <button class="w-7 h-7 flex items-center justify-center rounded
-                                   text-slate hover:text-brass hover:bg-brass/10 transition-colors"
-                            (click)="openAddForm('BOOKSHELF', hall.id)"
-                            title="Add Bookshelf">+</button>
+                                   text-ink-muted hover:text-ink hover:bg-page transition-colors text-xs font-bold"
+                            (click)="openAddForm('BOOKSHELF', hall.id)" title="Add Bookshelf">+</button>
                     <button class="w-7 h-7 flex items-center justify-center rounded
-                                   text-slate hover:text-brass hover:bg-brass/10 transition-colors"
-                            (click)="openEditForm(hall)"
-                            title="Edit Hall">&#9998;</button>
+                                   text-ink-muted hover:text-ink hover:bg-page transition-colors text-xs"
+                            (click)="openEditForm(hall)" title="Edit Hall">&#x270E;</button>
                     <button class="w-7 h-7 flex items-center justify-center rounded
-                                   text-slate hover:text-danger hover:bg-danger/10 transition-colors"
-                            (click)="deleteLocation(hall)"
-                            title="Delete Hall">&#128465;</button>
+                                   text-ink-muted hover:text-danger hover:bg-danger-subtle transition-colors text-xs"
+                            (click)="deleteLocation(hall)" title="Delete Hall">&#x1F5D1;</button>
                   </div>
                 }
               </div>
@@ -191,39 +134,36 @@ import type { Location, User } from '../../core/models';
               <!-- Bookshelf Level -->
               @if (isHallExpanded(hall.id)) {
                 @for (bs of bookshelves.get(hall.id) || []; track bs.id) {
-                  <div class="ml-8 pl-4 border-l border-wood/20">
-                    <div class="flex items-center gap-2 p-2 border-b border-wood/10">
-                      <button class="w-6 h-6 flex items-center justify-center text-ink hover:text-brass
-                                     transition-colors leading-none text-sm"
+                  <div class="border-t border-border">
+                    <div class="flex items-center gap-3 p-3 pr-4 mr-10 hover:bg-page transition-colors">
+                      <button class="w-6 h-6 flex items-center justify-center text-ink-muted hover:text-ink
+                                     transition-colors leading-none text-xs font-mono"
                               (click)="toggleBookshelf(bs.id)">
                         {{ isBookshelfExpanded(bs.id) ? '&#9660;' : '&#9654;' }}
                       </button>
-                      <span class="text-lg">&#128218;</span>
+                      <span class="text-base">&#x1F4DA;</span>
                       <div class="flex-1 flex flex-wrap items-center gap-2 min-w-0">
-                        <span class="font-medium text-ink">{{ bs.name }}</span>
+                        <span class="font-medium text-ink text-sm">{{ bs.name }}</span>
                         @if (bs.description) {
-                          <span class="text-slate-light text-sm">- {{ bs.description }}</span>
+                          <span class="text-ink-muted text-xs">&mdash; {{ bs.description }}</span>
                         }
                         @if (getLibrarianName(bs.librarianUserId)) {
-                          <span class="badge badge-active text-xs">
+                          <span class="badge badge-info text-[0.625rem]">
                             {{ getLibrarianName(bs.librarianUserId) }}
                           </span>
                         }
                       </div>
                       @if (canManageLocations()) {
-                        <div class="flex gap-1 flex-shrink-0">
+                        <div class="flex gap-0.5 flex-shrink-0">
                           <button class="w-7 h-7 flex items-center justify-center rounded
-                                         text-slate hover:text-brass hover:bg-brass/10 transition-colors"
-                                  (click)="openAddForm('SHELF', bs.id)"
-                                  title="Add Shelf">+</button>
+                                         text-ink-muted hover:text-ink hover:bg-page transition-colors text-xs font-bold"
+                                  (click)="openAddForm('SHELF', bs.id)" title="Add Shelf">+</button>
                           <button class="w-7 h-7 flex items-center justify-center rounded
-                                         text-slate hover:text-brass hover:bg-brass/10 transition-colors"
-                                  (click)="openEditForm(bs)"
-                                  title="Edit Bookshelf">&#9998;</button>
+                                         text-ink-muted hover:text-ink hover:bg-page transition-colors text-xs"
+                                  (click)="openEditForm(bs)" title="Edit Bookshelf">&#x270E;</button>
                           <button class="w-7 h-7 flex items-center justify-center rounded
-                                         text-slate hover:text-danger hover:bg-danger/10 transition-colors"
-                                  (click)="deleteLocation(bs)"
-                                  title="Delete Bookshelf">&#128465;</button>
+                                         text-ink-muted hover:text-danger hover:bg-danger-subtle transition-colors text-xs"
+                                  (click)="deleteLocation(bs)" title="Delete Bookshelf">&#x1F5D1;</button>
                         </div>
                       }
                     </div>
@@ -231,38 +171,36 @@ import type { Location, User } from '../../core/models';
                     <!-- Shelf Level -->
                     @if (isBookshelfExpanded(bs.id)) {
                       @for (shelf of shelves.get(bs.id) || []; track shelf.id) {
-                        <div class="ml-8 pl-4">
-                          <div class="flex items-center gap-2 p-2 border-b border-wood/5">
+                        <div class="border-t border-border-light">
+                          <div class="flex items-center gap-3 p-3 pr-4 mr-20 hover:bg-page transition-colors">
                             <span class="w-6"></span>
-                            <span class="text-lg">&#128230;</span>
+                            <span class="text-base">&#x1F4E6;</span>
                             <div class="flex-1 flex flex-wrap items-center gap-2 min-w-0">
-                              <span class="text-ink">{{ shelf.name }}</span>
+                              <span class="text-ink text-sm">{{ shelf.name }}</span>
                               @if (shelf.description) {
-                                <span class="text-slate-light text-sm">- {{ shelf.description }}</span>
+                                <span class="text-ink-muted text-xs">&mdash; {{ shelf.description }}</span>
                               }
                               @if (getLibrarianName(shelf.librarianUserId)) {
-                                <span class="badge badge-active text-xs">
+                                <span class="badge badge-info text-[0.625rem]">
                                   {{ getLibrarianName(shelf.librarianUserId) }}
                                 </span>
                               }
                             </div>
                             @if (canManageLocations()) {
-                              <div class="flex gap-1 flex-shrink-0">
+                              <div class="flex gap-0.5 flex-shrink-0">
                                 <button class="w-7 h-7 flex items-center justify-center rounded
-                                               text-slate hover:text-brass hover:bg-brass/10 transition-colors"
-                                        (click)="openEditForm(shelf)"
-                                        title="Edit Shelf">&#9998;</button>
+                                               text-ink-muted hover:text-ink hover:bg-page transition-colors text-xs"
+                                        (click)="openEditForm(shelf)" title="Edit Shelf">&#x270E;</button>
                                 <button class="w-7 h-7 flex items-center justify-center rounded
-                                               text-slate hover:text-danger hover:bg-danger/10 transition-colors"
-                                        (click)="deleteLocation(shelf)"
-                                        title="Delete Shelf">&#128465;</button>
+                                               text-ink-muted hover:text-danger hover:bg-danger-subtle transition-colors text-xs"
+                                        (click)="deleteLocation(shelf)" title="Delete Shelf">&#x1F5D1;</button>
                               </div>
                             }
                           </div>
                         </div>
                       }
                       @if ((shelves.get(bs.id) || []).length === 0) {
-                        <div class="ml-8 pl-4 py-2 text-slate-light italic text-sm">
+                        <div class="mr-20 py-2 px-4 text-ink-muted text-xs">
                           No shelves in this bookshelf.
                         </div>
                       }
@@ -270,7 +208,7 @@ import type { Location, User } from '../../core/models';
                   </div>
                 }
                 @if ((bookshelves.get(hall.id) || []).length === 0) {
-                  <div class="ml-8 pl-4 py-2 text-slate-light italic text-sm">
+                  <div class="mr-10 py-2 px-4 text-ink-muted text-xs">
                     No bookshelves in this hall.
                   </div>
                 }
@@ -278,8 +216,10 @@ import type { Location, User } from '../../core/models';
             </div>
           }
           @if (halls().length === 0) {
-            <div class="text-center py-8 text-slate">
-              No locations configured. Add a hall to get started.
+            <div class="empty-state">
+              <div class="empty-state-icon">&#x1F3E2;</div>
+              <h3 class="empty-state-title">No locations yet</h3>
+              <p class="empty-state-text">Add a hall to start organizing your physical library layout.</p>
             </div>
           }
         </div>

@@ -12,23 +12,27 @@ import type { Book, User, Borrowing } from '../../../core/models';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   template: `
-    <div class="max-w-xl mx-auto p-4 md:p-6">
-      <h1 class="font-display text-2xl font-bold text-ink mb-1">Borrow / Return</h1>
-      <p class="text-sm text-slate-light mb-6">Manage book borrowings and returns</p>
+    <div class="max-w-xl mx-auto space-y-6">
+      <div>
+        <h1 class="font-display text-2xl font-extrabold text-ink">Borrow / Return</h1>
+        <p class="text-ink-muted text-sm mt-1">Manage book borrowings and returns</p>
+      </div>
 
       <!-- Tab toggle -->
-      <div class="flex gap-0 mb-6 border border-wood/20 rounded-lg overflow-hidden bg-white">
-        <button class="flex-1 py-2.5 text-sm font-medium text-center transition-colors"
-                [class.bg-wood]="activeTab() === 'borrow'"
+      <div class="flex rounded-md overflow-hidden border border-border">
+        <button class="flex-1 py-2.5 text-sm font-medium text-center transition-colors duration-100"
+                [class.bg-ink]="activeTab() === 'borrow'"
                 [class.text-white]="activeTab() === 'borrow'"
-                [class.text-slate-light]="activeTab() !== 'borrow'"
+                [class.text-ink-muted]="activeTab() !== 'borrow'"
+                [class.hover:text-ink]="activeTab() !== 'borrow'"
                 (click)="switchTab('borrow')">
           Borrow
         </button>
-        <button class="flex-1 py-2.5 text-sm font-medium text-center transition-colors"
-                [class.bg-wood]="activeTab() === 'return'"
+        <button class="flex-1 py-2.5 text-sm font-medium text-center transition-colors duration-100"
+                [class.bg-ink]="activeTab() === 'return'"
                 [class.text-white]="activeTab() === 'return'"
-                [class.text-slate-light]="activeTab() !== 'return'"
+                [class.text-ink-muted]="activeTab() !== 'return'"
+                [class.hover:text-ink]="activeTab() !== 'return'"
                 (click)="switchTab('return')">
           Return
         </button>
@@ -36,10 +40,10 @@ import type { Book, User, Borrowing } from '../../../core/models';
 
       @if (activeTab() === 'borrow') {
         <div class="card">
-          <h2 class="font-display text-lg font-semibold mb-4">Borrow a Book</h2>
-          <form [formGroup]="borrowForm" (ngSubmit)="onBorrow()">
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-ink mb-1.5">Book</label>
+          <h2 class="font-display text-lg font-bold mb-5">Borrow a Book</h2>
+          <form [formGroup]="borrowForm" (ngSubmit)="onBorrow()" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-ink-light mb-1.5">Book</label>
               <select formControlName="bookId" class="input-field" (focus)="searchBooks()" (click)="searchBooks()">
                 <option [ngValue]="null" disabled>Select a book...</option>
                 @for (book of books(); track book.id) {
@@ -52,8 +56,8 @@ import type { Book, User, Borrowing } from '../../../core/models';
             </div>
 
             @if (canBorrowForOthers()) {
-              <div class="mb-4">
-                <label class="block text-sm font-medium text-ink mb-1.5">User (optional)</label>
+              <div>
+                <label class="block text-sm font-medium text-ink-light mb-1.5">User (optional)</label>
                 <select formControlName="userId" class="input-field" (focus)="loadUsers()" (click)="loadUsers()">
                   <option [ngValue]="null">Myself</option>
                   @for (user of users(); track user.id) {
@@ -63,16 +67,16 @@ import type { Book, User, Borrowing } from '../../../core/models';
               </div>
             }
 
-            <div class="flex gap-2">
+            <div class="flex gap-2 pt-2">
               <button type="submit"
-                      class="btn btn-primary flex-1"
+                      class="btn btn-accent flex-1"
                       [disabled]="borrowForm.invalid || loading">
                 @if (loading) {
                   <span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                 }
                 Borrow
               </button>
-              <a routerLink="/borrowings" class="btn btn-secondary">Cancel</a>
+              <a routerLink="/borrowings" class="btn btn-ghost">Cancel</a>
             </div>
           </form>
         </div>
@@ -80,26 +84,27 @@ import type { Book, User, Borrowing } from '../../../core/models';
 
       @if (activeTab() === 'return') {
         <div class="card">
-          <h2 class="font-display text-lg font-semibold mb-4">Return a Book</h2>
-          <form [formGroup]="returnForm" (ngSubmit)="onReturn()">
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-ink mb-1.5">Borrowing ID</label>
-              <input type="text" formControlName="borrowingId" class="input-field" placeholder="Enter the borrowing ID..." />
+          <h2 class="font-display text-lg font-bold mb-5">Return a Book</h2>
+          <form [formGroup]="returnForm" (ngSubmit)="onReturn()" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-ink-light mb-1.5">Borrowing ID</label>
+              <input type="text" formControlName="borrowingId"
+                     class="input-field" placeholder="Enter the borrowing ID..." />
               @if (returnForm.get('borrowingId')?.invalid && returnForm.get('borrowingId')?.touched) {
                 <p class="text-danger text-xs mt-1">Borrowing ID is required</p>
               }
             </div>
 
-            <div class="flex gap-2">
+            <div class="flex gap-2 pt-2">
               <button type="submit"
-                      class="btn btn-brass flex-1"
+                      class="btn btn-accent flex-1"
                       [disabled]="returnForm.invalid || loading">
                 @if (loading) {
                   <span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                 }
                 Return Book
               </button>
-              <a routerLink="/borrowings" class="btn btn-secondary">Cancel</a>
+              <a routerLink="/borrowings" class="btn btn-ghost">Cancel</a>
             </div>
           </form>
         </div>

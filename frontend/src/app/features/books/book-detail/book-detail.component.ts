@@ -12,120 +12,138 @@ import type { Book } from '../../../core/models';
     RouterModule,
   ],
   template: `
-    <div class="space-y-6">
-      <!-- Back button & Title -->
-      <div class="flex items-center gap-4">
-        <a routerLink="/books" class="btn btn-secondary btn-sm inline-flex items-center gap-1">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
-          Back
-        </a>
-        <h1 class="font-display text-2xl text-ink">
-          @if (book(); as b) { {{ b.title }} }
-        </h1>
-      </div>
+    <div class="max-w-3xl space-y-6">
+      <!-- Back -->
+      <a routerLink="/books" class="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink transition-colors group">
+        <svg class="w-4 h-4 transition-transform duration-150 group-hover:translate-x-1 rtl:group-hover:-translate-x-1"
+             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Back to catalog
+      </a>
 
       <!-- Loading -->
       @if (loading()) {
-        <div class="flex justify-center py-12">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-wood"></div>
+        <div class="flex justify-center py-16">
+          <div class="animate-spin rounded-full h-8 w-8 border-2 border-ink/15 border-t-ink"></div>
         </div>
       }
 
       <!-- Book Detail -->
       @if (!loading() && book(); as b) {
-        <div class="card p-6 space-y-6">
-          <!-- Metadata Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <span class="block text-sm text-slate-light font-medium">Author</span>
-              <span class="text-ink">{{ b.author }}</span>
+        <div class="card !p-0 overflow-hidden">
+          <!-- Header with spine -->
+          <div class="flex items-start gap-0">
+            <div class="flex-shrink-0 w-16 self-stretch bg-spine flex items-center justify-center">
+              <span class="text-white font-mono text-xs font-semibold tracking-widest
+                           [writing-mode:vertical-rl] rotate-180 leading-tight p-2">
+                {{ isbnLastFour(b.isbn) }}
+              </span>
             </div>
-            <div>
-              <span class="block text-sm text-slate-light font-medium">ISBN</span>
-              <span class="text-ink font-mono">{{ b.isbn }}</span>
-            </div>
-            @if (b.publisher) {
-              <div>
-                <span class="block text-sm text-slate-light font-medium">Publisher</span>
-                <span class="text-ink">{{ b.publisher }}</span>
-              </div>
-            }
-            @if (b.publicationYear) {
-              <div>
-                <span class="block text-sm text-slate-light font-medium">Publication Year</span>
-                <span class="text-ink">{{ b.publicationYear }}</span>
-              </div>
-            }
-            <div>
-              <span class="block text-sm text-slate-light font-medium">Total Copies</span>
-              <span class="text-ink">{{ b.copiesCount }}</span>
-            </div>
-            <div>
-              <span class="block text-sm text-slate-light font-medium">Available Copies</span>
-              @if (b.availableCopies > 0) {
-                <span class="badge badge-available ml-1">{{ b.availableCopies }} / {{ b.copiesCount }}</span>
-              } @else {
-                <span class="badge badge-overdue ml-1">{{ b.availableCopies }} / {{ b.copiesCount }}</span>
-              }
+            <div class="flex-1 p-6 min-w-0">
+              <h1 class="font-display text-2xl font-extrabold text-ink leading-snug mb-1">{{ b.title }}</h1>
+              <p class="text-ink-light text-sm">{{ b.author }}</p>
             </div>
           </div>
 
-          <!-- Actions -->
-          <div class="flex flex-wrap gap-3 pt-4 border-t border-wood-light">
-            @if (canBorrow()) {
-              <button class="btn btn-primary" (click)="borrowBook()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-                Borrow
-              </button>
-            }
-            @if (canReserve()) {
-              <button class="btn btn-secondary" (click)="reserveBook()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                Reserve
-              </button>
-            }
-            @if (canManageBooks()) {
-              <button class="btn btn-secondary" (click)="editBook()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-                Edit
-              </button>
-            }
-            @if (canDeleteBooks()) {
-              <button class="btn btn-danger" (click)="showDeleteConfirm.set(true)">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-                Delete
-              </button>
-            }
+          <hr class="divider" />
+
+          <!-- Metadata Grid -->
+          <div class="p-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+              <div>
+                <dt class="text-[0.6875rem] font-semibold uppercase tracking-wider text-ink-muted mb-0.5">ISBN</dt>
+                <dd class="text-sm text-ink font-mono">{{ b.isbn }}</dd>
+              </div>
+              @if (b.publisher) {
+                <div>
+                  <dt class="text-[0.6875rem] font-semibold uppercase tracking-wider text-ink-muted mb-0.5">Publisher</dt>
+                  <dd class="text-sm text-ink">{{ b.publisher }}</dd>
+                </div>
+              }
+              @if (b.publicationYear) {
+                <div>
+                  <dt class="text-[0.6875rem] font-semibold uppercase tracking-wider text-ink-muted mb-0.5">Publication Year</dt>
+                  <dd class="text-sm text-ink">{{ b.publicationYear }}</dd>
+                </div>
+              }
+              <div>
+                <dt class="text-[0.6875rem] font-semibold uppercase tracking-wider text-ink-muted mb-0.5">Copies</dt>
+                <dd class="text-sm text-ink">
+                  {{ b.copiesCount }} total
+                  @if (b.availableCopies > 0) {
+                    <span class="text-success font-medium"> &mdash; {{ b.availableCopies }} available</span>
+                  } @else {
+                    <span class="text-danger font-medium"> &mdash; none available</span>
+                  }
+                </dd>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex flex-wrap gap-2 mt-6 pt-5 border-t border-border">
+              @if (canBorrow()) {
+                <button class="btn btn-accent" (click)="borrowBook()">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                  </svg>
+                  Borrow
+                </button>
+              }
+              @if (canReserve()) {
+                <button class="btn btn-secondary" (click)="reserveBook()">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  Reserve
+                </button>
+              }
+              @if (canManageBooks()) {
+                <button class="btn btn-secondary" (click)="editBook()">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
+                  Edit
+                </button>
+              }
+              @if (canDeleteBooks()) {
+                <button class="btn btn-ghost !text-danger hover:!bg-danger-subtle" (click)="showDeleteConfirm.set(true)">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                  Delete
+                </button>
+              }
+            </div>
           </div>
         </div>
       }
 
       <!-- Book Not Found -->
       @if (!loading() && !book()) {
-        <div class="card text-center py-12 text-slate-light">
-          Book not found.
+        <div class="empty-state">
+          <div class="empty-state-icon">&#x1F50D;</div>
+          <h3 class="empty-state-title">Book not found</h3>
+          <p class="empty-state-text">The book you're looking for doesn't exist or has been removed.</p>
         </div>
       }
 
       <!-- Delete Confirmation Modal -->
       @if (showDeleteConfirm()) {
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" (click)="showDeleteConfirm.set(false)">
-          <div class="bg-paper rounded-xl shadow-xl p-6 max-w-md mx-4 space-y-4" (click)="$event.stopPropagation()">
-            <h3 class="font-display text-lg text-ink">Delete Book</h3>
-            <p class="text-slate">Are you sure you want to delete "{{ book()?.title }}"?</p>
-            <div class="flex justify-end gap-3">
-              <button class="btn btn-secondary" (click)="showDeleteConfirm.set(false)">Cancel</button>
-              <button class="btn btn-danger" (click)="confirmDelete()">Delete</button>
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-ink/20 backdrop-blur-sm"
+             (click)="showDeleteConfirm.set(false)">
+          <div class="card !p-6 max-w-sm mx-4 space-y-4 shadow-xl" (click)="$event.stopPropagation()">
+            <h3 class="font-display text-lg font-bold text-ink">Delete Book</h3>
+            <p class="text-sm text-ink-light leading-relaxed">
+              Are you sure you want to delete "{{ book()?.title }}"? This action cannot be undone.
+            </p>
+            <div class="flex justify-end gap-2 pt-2">
+              <button class="btn btn-ghost" (click)="showDeleteConfirm.set(false)">Cancel</button>
+              <button class="btn btn-accent" (click)="confirmDelete()">Delete</button>
             </div>
           </div>
         </div>
@@ -233,5 +251,10 @@ export class BookDetailComponent implements OnInit {
 
   canDeleteBooks(): boolean {
     return this.userRole() === 'ADMIN';
+  }
+
+  isbnLastFour(isbn: string): string {
+    const digits = (isbn || '').replace(/\D/g, '');
+    return digits.slice(-4) || '----';
   }
 }

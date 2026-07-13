@@ -15,39 +15,40 @@ import type { Book, Location } from '../../../core/models';
     NgClass,
   ],
   template: `
-    <div class="space-y-6">
+    <div class="max-w-2xl space-y-6">
       <!-- Header -->
-      <div class="flex items-center gap-4">
-        <a routerLink="/books" class="btn btn-secondary btn-sm inline-flex items-center gap-1">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      <div>
+        <a routerLink="/books" class="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink transition-colors group mb-4">
+          <svg class="w-4 h-4 transition-transform duration-150 group-hover:translate-x-1 rtl:group-hover:-translate-x-1"
+               fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
           </svg>
-          Back
+          Back to catalog
         </a>
-        <h1 class="font-display text-2xl text-ink">{{ editMode ? 'Edit Book' : 'Add Book' }}</h1>
+        <h1 class="font-display text-2xl font-extrabold text-ink">{{ editMode ? 'Edit Book' : 'Add Book' }}</h1>
       </div>
 
       <!-- Loading -->
       @if (loading()) {
-        <div class="flex justify-center py-12">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-wood"></div>
+        <div class="flex justify-center py-16">
+          <div class="animate-spin rounded-full h-8 w-8 border-2 border-ink/15 border-t-ink"></div>
         </div>
       }
 
       <!-- Form -->
       @if (!loading()) {
-        <div class="card p-6">
-          <form [formGroup]="bookForm" (ngSubmit)="onSubmit()" class="space-y-4">
+        <div class="card !p-6">
+          <form [formGroup]="bookForm" (ngSubmit)="onSubmit()" class="space-y-5">
             <!-- Title -->
             <div>
-              <label for="title" class="block text-sm font-medium text-ink mb-1">Title</label>
+              <label for="title" class="block text-sm font-medium text-ink-light mb-1.5">Title</label>
               <input
                 id="title"
                 type="text"
                 formControlName="title"
                 placeholder="Book title"
-                class="input-field w-full"
-                [ngClass]="{ 'border-danger': bookForm.get('title')?.invalid && bookForm.get('title')?.touched }"
+                class="input-field"
+                [ngClass]="{ '!border-danger': bookForm.get('title')?.invalid && bookForm.get('title')?.touched }"
               />
               @if (bookForm.get('title')?.invalid && bookForm.get('title')?.touched) {
                 <p class="text-danger text-xs mt-1">Title is required</p>
@@ -56,14 +57,14 @@ import type { Book, Location } from '../../../core/models';
 
             <!-- Author -->
             <div>
-              <label for="author" class="block text-sm font-medium text-ink mb-1">Author</label>
+              <label for="author" class="block text-sm font-medium text-ink-light mb-1.5">Author</label>
               <input
                 id="author"
                 type="text"
                 formControlName="author"
                 placeholder="Author name"
-                class="input-field w-full"
-                [ngClass]="{ 'border-danger': bookForm.get('author')?.invalid && bookForm.get('author')?.touched }"
+                class="input-field"
+                [ngClass]="{ '!border-danger': bookForm.get('author')?.invalid && bookForm.get('author')?.touched }"
               />
               @if (bookForm.get('author')?.invalid && bookForm.get('author')?.touched) {
                 <p class="text-danger text-xs mt-1">Author is required</p>
@@ -72,85 +73,85 @@ import type { Book, Location } from '../../../core/models';
 
             <!-- ISBN -->
             <div>
-              <label for="isbn" class="block text-sm font-medium text-ink mb-1">ISBN</label>
+              <label for="isbn" class="block text-sm font-medium text-ink-light mb-1.5">ISBN</label>
               <input
                 id="isbn"
                 type="text"
                 formControlName="isbn"
                 placeholder="ISBN-10 or ISBN-13"
-                class="input-field w-full"
-                [ngClass]="{ 'border-danger': bookForm.get('isbn')?.invalid && bookForm.get('isbn')?.touched }"
+                class="input-field font-mono"
+                [ngClass]="{ '!border-danger': bookForm.get('isbn')?.invalid && bookForm.get('isbn')?.touched }"
               />
               @if (bookForm.get('isbn')?.invalid && bookForm.get('isbn')?.touched) {
                 <p class="text-danger text-xs mt-1">ISBN is required</p>
               }
             </div>
 
-            <!-- Publisher -->
-            <div>
-              <label for="publisher" class="block text-sm font-medium text-ink mb-1">Publisher</label>
-              <input
-                id="publisher"
-                type="text"
-                formControlName="publisher"
-                placeholder="Publisher (optional)"
-                class="input-field w-full"
-              />
+            <!-- Publisher + Publication Year -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label for="publisher" class="block text-sm font-medium text-ink-light mb-1.5">Publisher</label>
+                <input
+                  id="publisher"
+                  type="text"
+                  formControlName="publisher"
+                  placeholder="Publisher (optional)"
+                  class="input-field"
+                />
+              </div>
+              <div>
+                <label for="publicationYear" class="block text-sm font-medium text-ink-light mb-1.5">Year</label>
+                <input
+                  id="publicationYear"
+                  type="number"
+                  formControlName="publicationYear"
+                  placeholder="e.g. 2025"
+                  class="input-field"
+                />
+              </div>
             </div>
 
-            <!-- Publication Year -->
-            <div>
-              <label for="publicationYear" class="block text-sm font-medium text-ink mb-1">Publication Year</label>
-              <input
-                id="publicationYear"
-                type="number"
-                formControlName="publicationYear"
-                placeholder="e.g. 2025"
-                class="input-field w-full"
-              />
-            </div>
-
-            <!-- Copies Count -->
-            <div>
-              <label for="copiesCount" class="block text-sm font-medium text-ink mb-1">Copies Count</label>
-              <input
-                id="copiesCount"
-                type="number"
-                formControlName="copiesCount"
-                min="1"
-                class="input-field w-full"
-                [ngClass]="{ 'border-danger': bookForm.get('copiesCount')?.invalid && bookForm.get('copiesCount')?.touched }"
-              />
-              @if (bookForm.get('copiesCount')?.invalid && bookForm.get('copiesCount')?.touched) {
-                <p class="text-danger text-xs mt-1">At least 1 copy required</p>
-              }
-            </div>
-
-            <!-- Shelf Location -->
-            <div>
-              <label for="shelfId" class="block text-sm font-medium text-ink mb-1">Shelf Location</label>
-              <select
-                id="shelfId"
-                formControlName="shelfId"
-                class="input-field w-full appearance-none bg-white"
-                [ngClass]="{ 'border-danger': bookForm.get('shelfId')?.invalid && bookForm.get('shelfId')?.touched }"
-              >
-                <option [ngValue]="null" disabled selected>Select a shelf</option>
-                @for (shelf of shelves(); track shelf.id) {
-                  <option [ngValue]="shelf.id">{{ shelf.name }}</option>
+            <!-- Copies + Shelf -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label for="copiesCount" class="block text-sm font-medium text-ink-light mb-1.5">Copies</label>
+                <input
+                  id="copiesCount"
+                  type="number"
+                  formControlName="copiesCount"
+                  min="1"
+                  class="input-field"
+                  [ngClass]="{ '!border-danger': bookForm.get('copiesCount')?.invalid && bookForm.get('copiesCount')?.touched }"
+                />
+                @if (bookForm.get('copiesCount')?.invalid && bookForm.get('copiesCount')?.touched) {
+                  <p class="text-danger text-xs mt-1">At least 1 copy required</p>
                 }
-              </select>
-              @if (bookForm.get('shelfId')?.invalid && bookForm.get('shelfId')?.touched) {
-                <p class="text-danger text-xs mt-1">Shelf is required</p>
-              }
+              </div>
+              <div>
+                <label for="shelfId" class="block text-sm font-medium text-ink-light mb-1.5">Shelf</label>
+                <select
+                  id="shelfId"
+                  formControlName="shelfId"
+                  class="input-field"
+                  [ngClass]="{ '!border-danger': bookForm.get('shelfId')?.invalid && bookForm.get('shelfId')?.touched }"
+                >
+                  <option [ngValue]="null" disabled selected>Select a shelf</option>
+                  @for (shelf of shelves(); track shelf.id) {
+                    <option [ngValue]="shelf.id">{{ shelf.name }}</option>
+                  }
+                </select>
+                @if (bookForm.get('shelfId')?.invalid && bookForm.get('shelfId')?.touched) {
+                  <p class="text-danger text-xs mt-1">Shelf is required</p>
+                }
+              </div>
             </div>
 
             <!-- Actions -->
-            <div class="flex justify-end gap-3 pt-4 border-t border-wood-light">
-              <button type="button" class="btn btn-secondary" routerLink="/books">Cancel</button>
-              <button type="submit" class="btn btn-primary" [disabled]="bookForm.invalid || saving()">
+            <div class="flex justify-end gap-3 pt-4 border-t border-border">
+              <button type="button" class="btn btn-ghost" routerLink="/books">Cancel</button>
+              <button type="submit" class="btn btn-accent" [disabled]="bookForm.invalid || saving()">
                 @if (saving()) {
-                  <span class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2 align-middle"></span>
+                  <span class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white mr-2 align-middle"></span>
                 }
                 {{ editMode ? 'Update' : 'Create' }}
               </button>

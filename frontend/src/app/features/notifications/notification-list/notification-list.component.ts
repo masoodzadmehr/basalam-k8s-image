@@ -10,74 +10,64 @@ import type { Notification } from '../../../core/models';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="p-4 md:p-6 max-w-2xl mx-auto">
-      <div class="flex items-center justify-between mb-6">
+    <div class="max-w-2xl mx-auto space-y-6">
+      <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <h1 class="font-display text-2xl font-bold text-ink">Notifications</h1>
+          <h1 class="font-display text-2xl font-extrabold text-ink">Notifications</h1>
           @if (unreadCount() > 0) {
-            <span class="badge badge-brass">{{ unreadCount() }} unread</span>
+            <span class="badge badge-danger">{{ unreadCount() }} unread</span>
           }
         </div>
       </div>
 
-      <!-- Loading -->
       @if (loading()) {
         <div class="flex justify-center py-16">
-          <div class="w-10 h-10 border-[3px] border-parchment border-t-brass rounded-full animate-spin"></div>
+          <div class="animate-spin rounded-full h-8 w-8 border-2 border-ink/15 border-t-ink"></div>
         </div>
-      }
-      @else if (notifications().length === 0) {
-        <div class="card text-center py-12 text-slate-light">
-          <p class="text-lg mb-2">No notifications</p>
-          <p>You're all caught up.</p>
+      } @else if (notifications().length === 0) {
+        <div class="empty-state">
+          <div class="empty-state-icon">&#x1F514;</div>
+          <h3 class="empty-state-title">No notifications</h3>
+          <p class="empty-state-text">You're all caught up.</p>
         </div>
-      }
-      @else {
-        <!-- Notification List -->
+      } @else {
         <div class="flex flex-col gap-2">
           @for (n of notifications(); track n.id) {
-            <div class="card p-4 cursor-pointer transition-colors hover:bg-parchment/20"
-                 [class.border-l-[3px]]="!n.isRead"
-                 [class.border-l-brass]="!n.isRead"
-                 [class.pl-3]="!n.isRead"
-                 [class.opacity-70]="n.isRead"
+            <div class="card !p-4 cursor-pointer transition-colors hover:bg-page group"
+                 [class.!border-r-0]="!n.isRead"
+                 [class.bg-surface]="true"
+                 [class.opacity-60]="n.isRead"
                  (click)="markAsRead(n)">
               <div class="flex items-start justify-between gap-3">
                 <div class="flex-1 min-w-0">
-                  <p class="text-sm" [class.font-semibold]="!n.isRead" [class.font-normal]="n.isRead">
+                  <p class="text-sm leading-relaxed"
+                     [class.font-semibold]="!n.isRead"
+                     [class.text-ink]="!n.isRead"
+                     [class.text-ink-light]="n.isRead">
                     {{ n.message }}
                   </p>
-                  <p class="text-xs text-slate-light mt-1 flex items-center gap-2">
+                  <p class="text-xs text-ink-muted mt-1.5 flex items-center gap-2">
                     <span class="badge" [ngClass]="getTypeBadgeClass(n.type)">{{ n.type | titlecase }}</span>
                     {{ n.createdDate | date:'medium' }}
                   </p>
                 </div>
                 @if (!n.isRead) {
-                  <span class="w-2 h-2 rounded-full bg-brass flex-shrink-0 mt-1.5" title="Unread"></span>
+                  <div class="flex-shrink-0 mt-1 flex gap-2">
+                    <span class="w-2 h-2 rounded-full bg-accent" title="Unread"></span>
+                  </div>
                 }
               </div>
             </div>
           }
         </div>
 
-        <!-- Pagination -->
         @if (totalElements() > pageSize) {
-          <div class="flex items-center justify-center gap-2 mt-6">
-            <button class="btn btn-secondary btn-sm"
-                    [disabled]="pageIndex === 0"
-                    (click)="goToPage(0)">First</button>
-            <button class="btn btn-secondary btn-sm"
-                    [disabled]="pageIndex === 0"
-                    (click)="goToPage(pageIndex - 1)">Prev</button>
-            <span class="text-sm text-slate-light px-2">
-              Page {{ pageIndex + 1 }} of {{ totalPages() }}
-            </span>
-            <button class="btn btn-secondary btn-sm"
-                    [disabled]="pageIndex + 1 >= totalPages()"
-                    (click)="goToPage(pageIndex + 1)">Next</button>
-            <button class="btn btn-secondary btn-sm"
-                    [disabled]="pageIndex + 1 >= totalPages()"
-                    (click)="goToPage(totalPages() - 1)">Last</button>
+          <div class="flex items-center justify-center gap-2">
+            <button class="btn btn-ghost btn-sm" [disabled]="pageIndex === 0" (click)="goToPage(0)">First</button>
+            <button class="btn btn-ghost btn-sm" [disabled]="pageIndex === 0" (click)="goToPage(pageIndex - 1)">Prev</button>
+            <span class="text-sm text-ink-muted px-2">Page {{ pageIndex + 1 }} of {{ totalPages() }}</span>
+            <button class="btn btn-ghost btn-sm" [disabled]="pageIndex + 1 >= totalPages()" (click)="goToPage(pageIndex + 1)">Next</button>
+            <button class="btn btn-ghost btn-sm" [disabled]="pageIndex + 1 >= totalPages()" (click)="goToPage(totalPages() - 1)">Last</button>
           </div>
         }
       }
@@ -147,10 +137,10 @@ export class NotificationListComponent implements OnInit {
 
   getTypeBadgeClass(type: string): string {
     switch (type) {
-      case 'OVERDUE': return 'badge-overdue';
-      case 'RESERVATION_READY': return 'badge-available';
-      case 'RESERVATION_EXPIRED': return 'badge-cancelled';
-      default: return 'badge-returned';
+      case 'OVERDUE': return 'badge-danger';
+      case 'RESERVATION_READY': return 'badge-success';
+      case 'RESERVATION_EXPIRED': return 'badge-neutral';
+      default: return 'badge-info';
     }
   }
 }

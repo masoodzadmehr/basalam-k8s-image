@@ -9,53 +9,51 @@ import type { User } from '../../../core/models';
   standalone: true,
   imports: [CommonModule, RouterModule, NgClass],
   template: `
-    <div class="max-w-6xl mx-auto py-6 px-4 sm:px-6">
-      <h1 class="font-display text-2xl font-bold text-ink mb-6">Users</h1>
+    <div class="space-y-6">
+      <h1 class="font-display text-2xl font-extrabold text-ink">Users</h1>
 
       @if (loading()) {
-        <div class="flex justify-center py-12">
-          <div class="animate-spin h-8 w-8 border-2 border-brass border-t-transparent rounded-full"></div>
+        <div class="flex justify-center py-16">
+          <div class="animate-spin h-8 w-8 border-2 border-ink/15 border-t-ink rounded-full"></div>
         </div>
       } @else if (users().length === 0) {
-        <div class="card p-8 text-center text-slate">
-          No users found.
+        <div class="empty-state">
+          <div class="empty-state-icon">&#x1F465;</div>
+          <h3 class="empty-state-title">No users found</h3>
         </div>
       } @else {
-        <div class="card overflow-hidden">
-          <table class="w-full border-collapse">
+        <div class="card-flush overflow-hidden">
+          <table class="table-root">
             <thead>
-              <tr class="table-header">
-                <th class="text-left p-3 font-semibold text-slate text-sm uppercase tracking-wider">Username</th>
-                <th class="text-left p-3 font-semibold text-slate text-sm uppercase tracking-wider">First Name</th>
-                <th class="text-left p-3 font-semibold text-slate text-sm uppercase tracking-wider">Last Name</th>
-                <th class="text-left p-3 font-semibold text-slate text-sm uppercase tracking-wider">Email</th>
-                <th class="text-left p-3 font-semibold text-slate text-sm uppercase tracking-wider">Role</th>
-                <th class="p-3 font-semibold text-slate text-sm uppercase tracking-wider">&nbsp;</th>
+              <tr>
+                <th>Username</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               @for (user of users(); track user.id) {
-                <tr class="border-b border-wood/10 hover:bg-wood/5 transition-colors cursor-pointer"
+                <tr class="cursor-pointer"
                     (click)="selectedUser.set(selectedUser()?.id === user.id ? null : user)">
-                  <td class="p-3 text-ink text-sm">{{ user.username }}</td>
-                  <td class="p-3 text-ink text-sm">{{ user.firstName }}</td>
-                  <td class="p-3 text-ink text-sm">{{ user.lastName }}</td>
-                  <td class="p-3 text-ink text-sm">{{ user.email }}</td>
-                  <td class="p-3">
+                  <td>{{ user.username }}</td>
+                  <td>{{ user.firstName }}</td>
+                  <td>{{ user.lastName }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>
                     <span class="badge text-xs"
                           [ngClass]="{
-                            'badge-active': user.role === 'ADMIN',
-                            'badge-pending': user.role === 'LIBRARIAN',
-                            'badge-cancelled': user.role === 'USER'
+                            'badge-info': user.role === 'ADMIN',
+                            'badge-warning': user.role === 'LIBRARIAN',
+                            'badge-neutral': user.role === 'USER'
                           }">
                       {{ user.role }}
                     </span>
                   </td>
-                  <td class="p-3 text-center">
-                    <button class="text-slate hover:text-brass transition-colors text-sm"
-                            title="View details">
-                      &#128065;
-                    </button>
+                  <td class="text-center">
+                    <span class="text-ink-muted text-sm">&#x1F441;</span>
                   </td>
                 </tr>
               }
@@ -64,54 +62,55 @@ import type { User } from '../../../core/models';
 
           <!-- Expanded user details row -->
           @if (selectedUser(); as u) {
-            <div class="p-4 bg-wood/5 border-b border-wood/10">
+            <div class="p-5 bg-page border-b border-border">
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                 <div>
-                  <span class="text-slate-light">Username:</span>
-                  <span class="text-ink ml-2 font-medium">{{ u.username }}</span>
+                  <span class="text-ink-muted text-xs uppercase tracking-wider">Username</span>
+                  <p class="text-ink font-medium mt-0.5">{{ u.username }}</p>
                 </div>
                 <div>
-                  <span class="text-slate-light">Email:</span>
-                  <span class="text-ink ml-2">{{ u.email }}</span>
+                  <span class="text-ink-muted text-xs uppercase tracking-wider">Email</span>
+                  <p class="text-ink mt-0.5">{{ u.email }}</p>
                 </div>
                 <div>
-                  <span class="text-slate-light">Mobile:</span>
-                  <span class="text-ink ml-2">{{ u.mobile ?? 'N/A' }}</span>
+                  <span class="text-ink-muted text-xs uppercase tracking-wider">Mobile</span>
+                  <p class="text-ink mt-0.5">{{ u.mobile ?? 'N/A' }}</p>
                 </div>
                 <div>
-                  <span class="text-slate-light">Full Name:</span>
-                  <span class="text-ink ml-2">{{ u.firstName }} {{ u.lastName }}</span>
+                  <span class="text-ink-muted text-xs uppercase tracking-wider">Full Name</span>
+                  <p class="text-ink mt-0.5">{{ u.firstName }} {{ u.lastName }}</p>
                 </div>
                 <div>
-                  <span class="text-slate-light">Role:</span>
-                  <span class="badge ml-2 text-xs"
-                        [ngClass]="{
-                          'badge-active': u.role === 'ADMIN',
-                          'badge-pending': u.role === 'LIBRARIAN',
-                          'badge-cancelled': u.role === 'USER'
-                        }">
-                    {{ u.role }}
-                  </span>
+                  <span class="text-ink-muted text-xs uppercase tracking-wider">Role</span>
+                  <p class="mt-0.5">
+                    <span class="badge text-xs"
+                          [ngClass]="{
+                            'badge-info': u.role === 'ADMIN',
+                            'badge-warning': u.role === 'LIBRARIAN',
+                            'badge-neutral': u.role === 'USER'
+                          }">
+                      {{ u.role }}
+                    </span>
+                  </p>
                 </div>
                 <div>
-                  <span class="text-slate-light">Status:</span>
-                  <span class="ml-2" [ngClass]="u.enabled ? 'text-success' : 'text-danger'">
+                  <span class="text-ink-muted text-xs uppercase tracking-wider">Status</span>
+                  <p class="mt-0.5" [ngClass]="u.enabled ? 'text-success' : 'text-danger'">
                     {{ u.enabled ? 'Active' : 'Disabled' }}
-                  </span>
+                  </p>
                 </div>
               </div>
             </div>
           }
 
           <!-- Pagination -->
-          <div class="flex flex-wrap items-center justify-between gap-4 p-4 border-t border-wood/10">
-            <div class="text-sm text-slate-light">
-              Showing {{ pageIndex * pageSize + 1 }} -
-              {{ (pageIndex + 1) * pageSize > totalElements() ? totalElements() : (pageIndex + 1) * pageSize }}
-              of {{ totalElements() }} users
+          <div class="flex flex-wrap items-center justify-between gap-4 p-4 border-t border-border">
+            <div class="text-sm text-ink-muted">
+              {{ pageIndex * pageSize + 1 }}&ndash;{{ ((pageIndex + 1) * pageSize > totalElements() ? totalElements() : (pageIndex + 1) * pageSize) }}
+              of {{ totalElements() }}
             </div>
             <div class="flex items-center gap-2">
-              <select class="input-field text-sm py-1"
+              <select class="input-field w-auto text-sm !py-1.5"
                       [value]="pageSize"
                       (change)="onPageSizeChange($any($event.target).value)">
                 <option [value]="5">5</option>
@@ -119,23 +118,15 @@ import type { User } from '../../../core/models';
                 <option [value]="20">20</option>
                 <option [value]="50">50</option>
               </select>
-              <span class="text-sm text-slate-light">per page</span>
-              <div class="flex gap-1 ml-4">
-                <button class="btn btn-secondary btn-sm px-3"
-                        [disabled]="pageIndex === 0"
-                        (click)="goToPage(0)">First</button>
-                <button class="btn btn-secondary btn-sm px-3"
-                        [disabled]="pageIndex === 0"
-                        (click)="goToPage(pageIndex - 1)">Prev</button>
+              <span class="text-sm text-ink-muted">per page</span>
+              <div class="flex gap-1 ml-3">
+                <button class="btn btn-ghost btn-sm" [disabled]="pageIndex === 0" (click)="goToPage(0)">First</button>
+                <button class="btn btn-ghost btn-sm" [disabled]="pageIndex === 0" (click)="goToPage(pageIndex - 1)">Prev</button>
                 <span class="flex items-center px-2 text-sm text-ink tabular-nums">
                   {{ pageIndex + 1 }} / {{ totalPages() || 1 }}
                 </span>
-                <button class="btn btn-secondary btn-sm px-3"
-                        [disabled]="(pageIndex + 1) * pageSize >= totalElements()"
-                        (click)="goToPage(pageIndex + 1)">Next</button>
-                <button class="btn btn-secondary btn-sm px-3"
-                        [disabled]="(pageIndex + 1) * pageSize >= totalElements()"
-                        (click)="goToPage(totalPages() - 1)">Last</button>
+                <button class="btn btn-ghost btn-sm" [disabled]="(pageIndex + 1) * pageSize >= totalElements()" (click)="goToPage(pageIndex + 1)">Next</button>
+                <button class="btn btn-ghost btn-sm" [disabled]="(pageIndex + 1) * pageSize >= totalElements()" (click)="goToPage(totalPages() - 1)">Last</button>
               </div>
             </div>
           </div>
