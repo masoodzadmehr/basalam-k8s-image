@@ -1,43 +1,41 @@
-import { Component, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import {
-  MAT_DIALOG_DATA,
-  MatDialogActions,
-  MatDialogClose,
-  MatDialogContent,
-  MatDialogRef,
-  MatDialogTitle,
-} from '@angular/material/dialog';
-
-export interface ConfirmDialogData {
-  title: string;
-  message: string;
-  confirmLabel?: string;
-  cancelLabel?: string;
-}
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-confirm-dialog',
   standalone: true,
-  imports: [MatButtonModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose],
   template: `
-    <h2 mat-dialog-title>{{ data.title }}</h2>
-    <mat-dialog-content>
-      <p>{{ data.message }}</p>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button [mat-dialog-close]="false">{{ data.cancelLabel || 'Cancel' }}</button>
-      <button mat-flat-button color="warn" [mat-dialog-close]="true">
-        {{ data.confirmLabel || 'Confirm' }}
-      </button>
-    </mat-dialog-actions>
+    @if (open) {
+      <div class="fixed inset-0 z-50 flex items-center justify-center">
+        <div class="absolute inset-0 bg-black/40" (click)="onCancel()"></div>
+        <div class="relative bg-white rounded-xl shadow-xl p-6 max-w-md w-full mx-4">
+          <h2 class="font-display text-xl font-semibold text-ink mb-2">{{ title }}</h2>
+          <p class="text-slate text-sm mb-6">{{ message }}</p>
+          <div class="flex justify-end gap-3">
+            <button class="btn btn-secondary" (click)="onCancel()">{{ cancelLabel }}</button>
+            <button class="btn btn-danger" (click)="onConfirm()">{{ confirmLabel }}</button>
+          </div>
+        </div>
+      </div>
+    }
   `,
-  styles: `
-    h2 { margin: 0; }
-    mat-dialog-content { min-width: 300px; }
-  `,
+  styles: ``,
 })
 export class ConfirmDialogComponent {
-  readonly dialogRef = inject(MatDialogRef<ConfirmDialogComponent>);
-  readonly data: ConfirmDialogData = inject(MAT_DIALOG_DATA);
+  @Input() open = false;
+  @Input() title = 'Confirm';
+  @Input() message = 'Are you sure?';
+  @Input() confirmLabel = 'Confirm';
+  @Input() cancelLabel = 'Cancel';
+
+  @Output() confirmed = new EventEmitter<boolean>();
+
+  onConfirm(): void {
+    this.confirmed.emit(true);
+    this.open = false;
+  }
+
+  onCancel(): void {
+    this.confirmed.emit(false);
+    this.open = false;
+  }
 }

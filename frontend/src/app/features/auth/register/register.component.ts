@@ -1,38 +1,23 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../shared/toast.service';
 import type { RegisterRequest } from '../../../core/models';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatCardModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
-    RouterModule,
-  ],
+  imports: [ReactiveFormsModule, RouterModule, NgClass],
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.scss'],
+  styles: ``,
 })
 export class RegisterComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toastService = inject(ToastService);
 
   registerForm: FormGroup = this.fb.group({
     username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
@@ -56,13 +41,13 @@ export class RegisterComponent {
     this.authService.register(request).subscribe({
       next: () => {
         this.loading = false;
-        this.snackBar.open('Registration successful!', 'Close', { duration: 3000 });
+        this.toastService.show('Registration successful!', 'success');
         this.router.navigate(['/books']);
       },
       error: (err) => {
         this.loading = false;
         this.errorMessage = err?.error?.message ?? 'Registration failed. Please try again.';
-        this.snackBar.open(this.errorMessage, 'Close', { duration: 5000 });
+        this.toastService.show(this.errorMessage, 'error');
       },
     });
   }

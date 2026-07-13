@@ -1,63 +1,125 @@
-<mat-sidenav-container class="layout-container">
-  <mat-sidenav mode="side" opened class="sidebar">
-    <div class="sidebar-header">
-      <mat-icon class="logo-icon">local_library</mat-icon>
-      <span class="logo-text">Library MS</span>
+<!-- Mobile sidebar overlay -->
+@if (sidebarOpen) {
+  <div class="fixed inset-0 z-40 lg:hidden" (click)="closeSidebar()">
+    <div class="absolute inset-0 bg-black/40"></div>
+  </div>
+}
+
+<div class="flex h-screen overflow-hidden bg-paper">
+  <!-- Sidebar -->
+  <aside
+    class="fixed inset-y-0 left-0 z-50 w-64 transform bg-white border-r border-gray-200 flex flex-col transition-transform duration-200 lg:relative lg:translate-x-0"
+    [class.-translate-x-full]="!sidebarOpen"
+  >
+    <!-- Sidebar header -->
+    <div class="flex items-center gap-3 px-4 h-16 bg-wood text-white shrink-0">
+      <span class="text-2xl">📚</span>
+      <span class="font-display text-lg font-semibold tracking-tight">Library MS</span>
     </div>
-    <mat-divider></mat-divider>
-    <mat-nav-list>
+
+    <!-- Navigation Items -->
+    <nav class="flex-1 overflow-y-auto p-3 space-y-1">
       @for (item of filteredNavItems; track item.label) {
         <a
-          mat-list-item
           [routerLink]="[item.route]"
-          routerLinkActive="active-link"
+          (click)="closeSidebar()"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+          [ngClass]="{
+            'bg-parchment text-ink border-l-[3px] border-brass': isActive(item.route),
+            'text-slate hover:bg-parchment/60': !isActive(item.route)
+          }"
         >
-          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+          <span class="text-lg">{{ item.icon }}</span>
           <span>{{ item.label }}</span>
         </a>
       }
-    </mat-nav-list>
-  </mat-sidenav>
+    </nav>
 
-  <mat-sidenav-content>
-    <mat-toolbar class="topbar">
-      <span class="app-title">Library Management System</span>
-      <span class="spacer"></span>
+    <!-- Sidebar footer -->
+    <div class="p-3 border-t border-gray-200">
+      <div class="text-xs text-slate-light px-3 py-1">
+        {{ userRole() }}
+      </div>
+    </div>
+  </aside>
 
-      <button
-        mat-icon-button
-        [matBadge]="unreadNotifications"
-        matBadgeColor="warn"
-        matBadgeHidden="unreadNotifications === 0"
-        (click)="navigateTo('/notifications')"
-        aria-label="Notifications"
-      >
-        <mat-icon>notifications</mat-icon>
-      </button>
-
-      <button
-        mat-icon-button
-        [matMenuTriggerFor]="userMenu"
-        aria-label="User menu"
-      >
-        <mat-icon>account_circle</mat-icon>
-      </button>
-
-      <mat-menu #userMenu="matMenu">
-        <button mat-menu-item (click)="navigateTo('/profile')">
-          <mat-icon>person</mat-icon>
-          <span>Profile</span>
+  <!-- Main content area -->
+  <div class="flex-1 flex flex-col min-w-0">
+    <!-- Top bar -->
+    <header class="h-16 bg-wood text-white flex items-center justify-between px-4 shrink-0 z-30">
+      <div class="flex items-center gap-3">
+        <!-- Hamburger toggle -->
+        <button
+          class="lg:hidden p-2 rounded-lg hover:bg-wood-light transition-colors text-white"
+          (click)="toggleSidebar()"
+          aria-label="Toggle sidebar"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
         </button>
-        <mat-divider></mat-divider>
-        <button mat-menu-item (click)="logout()">
-          <mat-icon>logout</mat-icon>
-          <span>Logout</span>
-        </button>
-      </mat-menu>
-    </mat-toolbar>
+        <span class="font-display text-lg font-semibold hidden sm:block">Library Management System</span>
+      </div>
 
-    <main class="main-content">
-      <router-outlet></router-outlet>
+      <div class="flex items-center gap-2">
+        <!-- Notifications -->
+        <button
+          class="relative p-2 rounded-lg hover:bg-wood-light transition-colors"
+          (click)="navigateTo('/notifications')"
+          aria-label="Notifications"
+        >
+          <span class="text-xl">🔔</span>
+          @if (unreadNotifications > 0) {
+            <span class="absolute -top-0.5 -right-0.5 flex items-center justify-center w-5 h-5 bg-danger text-white text-[10px] font-bold rounded-full">
+              {{ unreadNotifications > 99 ? '99+' : unreadNotifications }}
+            </span>
+          }
+        </button>
+
+        <!-- User menu -->
+        <div class="relative">
+          <button
+            class="p-2 rounded-lg hover:bg-wood-light transition-colors"
+            (click)="toggleUserMenu()"
+            aria-label="User menu"
+          >
+            <span class="text-xl">👤</span>
+          </button>
+          @if (userMenuOpen) {
+            <div class="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+              <button
+                class="w-full text-left px-4 py-2 text-sm text-slate hover:bg-parchment/60 flex items-center gap-2"
+                (click)="navigateTo('/profile'); userMenuOpen = false"
+              >
+                <span>👤</span> Profile
+              </button>
+              <hr class="my-1 border-gray-200" />
+              <button
+                class="w-full text-left px-4 py-2 text-sm text-danger hover:bg-parchment/60 flex items-center gap-2"
+                (click)="logout()"
+              >
+                <span>🚪</span> Logout
+              </button>
+            </div>
+          }
+          <!-- Click away to close -->
+          @if (userMenuOpen) {
+            <div class="fixed inset-0 z-40" (click)="userMenuOpen = false"></div>
+          }
+        </div>
+      </div>
+    </header>
+
+    <!-- Page content -->
+    <main class="flex-1 overflow-y-auto bg-paper">
+      <div class="p-4 sm:p-6 lg:p-8">
+        <router-outlet></router-outlet>
+      </div>
     </main>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+
+    <!-- Footer -->
+    <footer class="bg-wood text-white/50 text-xs text-center py-3 shrink-0">
+      &copy; 2026 Library Management System
+    </footer>
+  </div>
+</div>

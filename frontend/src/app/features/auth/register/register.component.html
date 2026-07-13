@@ -1,76 +1,123 @@
-<div class="register-wrapper">
-  <mat-card class="register-card">
-    <mat-card-header>
-      <mat-card-title>Create Account</mat-card-title>
-      <mat-card-subtitle>Join the Library Management System</mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-content>
-      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-        @if (errorMessage) {
-          <div class="error-message">{{ errorMessage }}</div>
+<div class="min-h-screen flex items-center justify-center bg-parchment/30 px-4 py-8">
+  <div class="card w-full max-w-lg">
+    <!-- Logo / Title -->
+    <div class="text-center mb-8">
+      <span class="text-4xl block mb-2">📚</span>
+      <h1 class="font-display text-2xl font-bold text-ink mb-1">Create Account</h1>
+      <p class="text-slate-light text-sm">Join the Library Management System</p>
+    </div>
+
+    <!-- Error message -->
+    @if (errorMessage) {
+      <div class="mb-4 p-3 rounded-lg bg-danger/10 border border-danger/30 text-danger text-sm">
+        {{ errorMessage }}
+      </div>
+    }
+
+    <!-- Register form -->
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-slate mb-1.5">Username</label>
+        <input
+          type="text"
+          formControlName="username"
+          class="input-field"
+          placeholder="Choose a username"
+          autocomplete="username"
+        />
+        @if (registerForm.get('username')?.hasError('required') && registerForm.get('username')?.touched) {
+          <p class="text-danger text-xs mt-1">Username is required</p>
         }
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Username</mat-label>
-          <input matInput formControlName="username" placeholder="Choose a username" autocomplete="username" />
-          <mat-icon matSuffix>person</mat-icon>
-          @if (registerForm.get('username')?.hasError('required') && registerForm.get('username')?.touched) {
-            <mat-error>Username is required</mat-error>
+        @if (registerForm.get('username')?.hasError('minlength')) {
+          <p class="text-danger text-xs mt-1">Username must be at least 3 characters</p>
+        }
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate mb-1.5">Password</label>
+        <input
+          type="password"
+          formControlName="password"
+          class="input-field"
+          placeholder="Create a password"
+          autocomplete="new-password"
+        />
+        @if (registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched) {
+          <p class="text-danger text-xs mt-1">Password is required</p>
+        }
+        @if (registerForm.get('password')?.hasError('minlength')) {
+          <p class="text-danger text-xs mt-1">Password must be at least 6 characters</p>
+        }
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate mb-1.5">Email</label>
+        <input
+          type="email"
+          formControlName="email"
+          class="input-field"
+          placeholder="Enter your email"
+          autocomplete="email"
+        />
+        @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+          <p class="text-danger text-xs mt-1">Please enter a valid email</p>
+        }
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate mb-1.5">First Name</label>
+          <input
+            type="text"
+            formControlName="firstName"
+            class="input-field"
+            placeholder="First name"
+          />
+          @if (registerForm.get('firstName')?.hasError('required') && registerForm.get('firstName')?.touched) {
+            <p class="text-danger text-xs mt-1">Required</p>
           }
-          @if (registerForm.get('username')?.hasError('minlength')) {
-            <mat-error>Username must be at least 3 characters</mat-error>
-          }
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Password</mat-label>
-          <input matInput type="password" formControlName="password" placeholder="Create a password" autocomplete="new-password" />
-          <mat-icon matSuffix>lock</mat-icon>
-          @if (registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched) {
-            <mat-error>Password is required</mat-error>
-          }
-          @if (registerForm.get('password')?.hasError('minlength')) {
-            <mat-error>Password must be at least 6 characters</mat-error>
-          }
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Email</mat-label>
-          <input matInput type="email" formControlName="email" placeholder="Enter your email" autocomplete="email" />
-          <mat-icon matSuffix>email</mat-icon>
-          @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
-            <mat-error>Please enter a valid email</mat-error>
-          }
-        </mat-form-field>
-        <div class="name-row">
-          <mat-form-field appearance="outline" class="half-width">
-            <mat-label>First Name</mat-label>
-            <input matInput formControlName="firstName" placeholder="First name" />
-            @if (registerForm.get('firstName')?.hasError('required') && registerForm.get('firstName')?.touched) {
-              <mat-error>Required</mat-error>
-            }
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="half-width">
-            <mat-label>Last Name</mat-label>
-            <input matInput formControlName="lastName" placeholder="Last name" />
-            @if (registerForm.get('lastName')?.hasError('required') && registerForm.get('lastName')?.touched) {
-              <mat-error>Required</mat-error>
-            }
-          </mat-form-field>
         </div>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Mobile (optional)</mat-label>
-          <input matInput formControlName="mobile" placeholder="Enter your mobile number" />
-          <mat-icon matSuffix>phone</mat-icon>
-        </mat-form-field>
-        <button mat-flat-button color="primary" type="submit" class="full-width" [disabled]="registerForm.invalid || loading">
-          @if (loading) {
-            <mat-spinner diameter="20"></mat-spinner>
-          } @else {
-            Register
+        <div>
+          <label class="block text-sm font-medium text-slate mb-1.5">Last Name</label>
+          <input
+            type="text"
+            formControlName="lastName"
+            class="input-field"
+            placeholder="Last name"
+          />
+          @if (registerForm.get('lastName')?.hasError('required') && registerForm.get('lastName')?.touched) {
+            <p class="text-danger text-xs mt-1">Required</p>
           }
-        </button>
-      </form>
-    </mat-card-content>
-    <mat-card-actions align="end">
-      <a mat-button color="accent" routerLink="/login">Already have an account? Sign in</a>
-    </mat-card-actions>
-  </mat-card>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate mb-1.5">Mobile (optional)</label>
+        <input
+          type="text"
+          formControlName="mobile"
+          class="input-field"
+          placeholder="Enter your mobile number"
+        />
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary w-full"
+        [disabled]="registerForm.invalid || loading"
+      >
+        @if (loading) {
+          <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+        } @else {
+          Register
+        }
+      </button>
+    </form>
+
+    <div class="mt-6 text-center">
+      <a routerLink="/login" class="text-brass hover:text-brass-light text-sm font-medium transition-colors">
+        Already have an account? Sign in
+      </a>
+    </div>
+  </div>
 </div>

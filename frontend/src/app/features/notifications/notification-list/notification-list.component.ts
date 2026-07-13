@@ -1,38 +1,93 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { MatListModule } from '@angular/material/list';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatChipsModule } from '@angular/material/chips';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../../core/services/api.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../shared/toast.service';
 import type { Notification } from '../../../core/models';
 
 @Component({
   selector: 'app-notification-list',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatListModule,
-    MatButtonModule,
-    MatIconModule,
-    MatCardModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
-    MatPaginatorModule,
-    MatChipsModule,
-  ],
-  templateUrl: './notification-list.component.html',
-  styleUrls: ['./notification-list.component.scss'],
+  imports: [CommonModule],
+  template: `
+    <div class="p-4 md:p-6 max-w-2xl mx-auto">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <h1 class="font-display text-2xl font-bold text-ink">Notifications</h1>
+          @if (unreadCount() > 0) {
+            <span class="badge badge-brass">{{ unreadCount() }} unread</span>
+          }
+        </div>
+      </div>
+
+      <!-- Loading -->
+      @if (loading()) {
+        <div class="flex justify-center py-16">
+          <div class="w-10 h-10 border-[3px] border-parchment border-t-brass rounded-full animate-spin"></div>
+        </div>
+      }
+      @else if (notifications().length === 0) {
+        <div class="card text-center py-12 text-slate-light">
+          <p class="text-lg mb-2">No notifications</p>
+          <p>You're all caught up.</p>
+        </div>
+      }
+      @else {
+        <!-- Notification List -->
+        <div class="flex flex-col gap-2">
+          @for (n of notifications(); track n.id) {
+            <div class="card p-4 cursor-pointer transition-colors hover:bg-parchment/20"
+                 [class.border-l-[3px]]="!n.isRead"
+                 [class.border-l-brass]="!n.isRead"
+                 [class.pl-3]="!n.isRead"
+                 [class.opacity-70]="n.isRead"
+                 (click)="markAsRead(n)">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm" [class.font-semibold]="!n.isRead" [class.font-normal]="n.isRead">
+                    {{ n.message }}
+                  </p>
+                  <p class="text-xs text-slate-light mt-1 flex items-center gap-2">
+                    <span class="badge" [ngClass]="getTypeBadgeClass(n.type)">{{ n.type | titlecase }}</span>
+                    {{ n.createdDate | date:'medium' }}
+                  </p>
+                </div>
+                @if (!n.isRead) {
+                  <span class="w-2 h-2 rounded-full bg-brass flex-shrink-0 mt-1.5" title="Unread"></span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Pagination -->
+        @if (totalElements() > pageSize) {
+          <div class="flex items-center justify-center gap-2 mt-6">
+            <button class="btn btn-secondary btn-sm"
+                    [disabled]="pageIndex === 0"
+                    (click)="goToPage(0)">First</button>
+            <button class="btn btn-secondary btn-sm"
+                    [disabled]="pageIndex === 0"
+                    (click)="goToPage(pageIndex - 1)">Prev</button>
+            <span class="text-sm text-slate-light px-2">
+              Page {{ pageIndex + 1 }} of {{ totalPages() }}
+            </span>
+            <button class="btn btn-secondary btn-sm"
+                    [disabled]="pageIndex + 1 >= totalPages()"
+                    (click)="goToPage(pageIndex + 1)">Next</button>
+            <button class="btn btn-secondary btn-sm"
+                    [disabled]="pageIndex + 1 >= totalPages()"
+                    (click)="goToPage(totalPages() - 1)">Last</button>
+          </div>
+        }
+      }
+    </div>
+  `,
 })
 export class NotificationListComponent implements OnInit {
   private readonly apiService = inject(ApiService);
   private readonly authService = inject(AuthService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toastService = inject(ToastService);
 
   notifications = signal<Notification[]>([]);
   unreadCount = signal(0);
@@ -64,10 +119,13 @@ export class NotificationListComponent implements OnInit {
     });
   }
 
-  onPageChange(event: PageEvent): void {
-    this.pageIndex = event.pageIndex;
-    this.pageSize = event.pageSize;
+  goToPage(page: number): void {
+    this.pageIndex = page;
     this.loadNotifications();
+  }
+
+  totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalElements() / this.pageSize));
   }
 
   markAsRead(notification: Notification): void {
@@ -82,26 +140,17 @@ export class NotificationListComponent implements OnInit {
         this.unreadCount.update(c => c - 1);
       },
       error: () => {
-        this.snackBar.open('Failed to mark as read', 'Close', { duration: 3000 });
+        this.toastService.show('Failed to mark as read', 'error');
       },
     });
   }
 
-  getTypeIcon(type: string): string {
+  getTypeBadgeClass(type: string): string {
     switch (type) {
-      case 'OVERDUE': return 'warning';
-      case 'RESERVATION_READY': return 'event_available';
-      case 'RESERVATION_EXPIRED': return 'event_busy';
-      default: return 'notifications';
-    }
-  }
-
-  getTypeChipColor(type: string): string {
-    switch (type) {
-      case 'OVERDUE': return 'warn';
-      case 'RESERVATION_READY': return 'accent';
-      case 'RESERVATION_EXPIRED': return '';
-      default: return 'primary';
+      case 'OVERDUE': return 'badge-overdue';
+      case 'RESERVATION_READY': return 'badge-available';
+      case 'RESERVATION_EXPIRED': return 'badge-cancelled';
+      default: return 'badge-returned';
     }
   }
 }
