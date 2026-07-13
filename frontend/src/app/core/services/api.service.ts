@@ -5,7 +5,7 @@ import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  private readonly apiUrl = 'https://admin-api.titanapp.dev/api';
+  private readonly apiUrl = 'https://admin-ui.titanapp.dev/api';
 
   constructor(
     private readonly http: HttpClient,
