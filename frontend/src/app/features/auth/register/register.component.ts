@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { NgClass } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../shared/toast.service';
 import type { RegisterRequest } from '../../../core/models';
@@ -9,7 +8,7 @@ import type { RegisterRequest } from '../../../core/models';
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterModule, NgClass],
+  imports: [ReactiveFormsModule, RouterModule],
   templateUrl: './register.component.html',
   styles: ``,
 })

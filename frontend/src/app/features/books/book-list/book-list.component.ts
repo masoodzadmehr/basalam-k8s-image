@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { NgClass } from '@angular/common';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -14,7 +13,6 @@ import type { Book } from '../../../core/models';
   imports: [
     ReactiveFormsModule,
     RouterModule,
-    NgClass,
   ],
   template: `
     <div class="space-y-6">

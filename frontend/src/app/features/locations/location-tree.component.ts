@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CommonModule, NgClass } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ApiService } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../shared/toast.service';
@@ -9,7 +9,7 @@ import type { Location, User } from '../../core/models';
 @Component({
   selector: 'app-location-tree',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgClass],
+  imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div class="max-w-5xl mx-auto py-6 px-4 sm:px-6">
       <!-- Header -->

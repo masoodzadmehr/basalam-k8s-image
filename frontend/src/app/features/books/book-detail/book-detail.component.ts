@@ -1,6 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { NgClass } from '@angular/common';
 import { ApiService } from '../../../core/services/api.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../shared/toast.service';
@@ -11,7 +10,6 @@ import type { Book } from '../../../core/models';
   standalone: true,
   imports: [
     RouterModule,
-    NgClass,
   ],
   template: `
     <div class="space-y-6">
