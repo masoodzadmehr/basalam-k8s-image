@@ -24,7 +24,7 @@ export class AuthService {
   readonly isAuthenticated = this.isAuthenticatedSignal.asReadonly();
   readonly userRole = this.userRoleSignal.asReadonly();
 
-  private readonly apiUrl = 'https://admin.titanapp.dev/api';
+  private readonly apiUrl = 'https://admin-api.titanapp.dev/api';
 
   constructor(
     private readonly http: HttpClient,
