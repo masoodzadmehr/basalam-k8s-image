@@ -1,5 +1,55 @@
 @import "tailwindcss";
 
+/* Ravagh Pro — Persian Font (8 weights) */
+@font-face {
+  font-family: 'Ravagh';
+  src: url('../public/fonts/ravagh/Ravagh-ExtraLight.woff2') format('woff2'),
+       url('../public/fonts/ravagh/Ravagh-ExtraLight.woff') format('woff');
+  font-weight: 200; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Ravagh';
+  src: url('../public/fonts/ravagh/Ravagh-Light.woff2') format('woff2'),
+       url('../public/fonts/ravagh/Ravagh-Light.woff') format('woff');
+  font-weight: 300; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Ravagh';
+  src: url('../public/fonts/ravagh/Ravagh-Regular.woff2') format('woff2'),
+       url('../public/fonts/ravagh/Ravagh-Regular.woff') format('woff');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Ravagh';
+  src: url('../public/fonts/ravagh/Ravagh-Medium.woff2') format('woff2'),
+       url('../public/fonts/ravagh/Ravagh-Medium.woff') format('woff');
+  font-weight: 500; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Ravagh';
+  src: url('../public/fonts/ravagh/Ravagh-SemiBold.woff2') format('woff2'),
+       url('../public/fonts/ravagh/Ravagh-SemiBold.woff') format('woff');
+  font-weight: 600; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Ravagh';
+  src: url('../public/fonts/ravagh/Ravagh-Bold.woff2') format('woff2'),
+       url('../public/fonts/ravagh/Ravagh-Bold.woff') format('woff');
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Ravagh';
+  src: url('../public/fonts/ravagh/Ravagh-ExtraBold.woff2') format('woff2'),
+       url('../public/fonts/ravagh/Ravagh-ExtraBold.woff') format('woff');
+  font-weight: 800; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Ravagh';
+  src: url('../public/fonts/ravagh/Ravagh-Black.woff2') format('woff2'),
+       url('../public/fonts/ravagh/Ravagh-Black.woff') format('woff');
+  font-weight: 900; font-style: normal; font-display: swap;
+}
+
 @theme {
   --color-page: #FCFCFA;
   --color-ink: #1C1C1C;
@@ -24,8 +74,8 @@
   --color-neutral: #6B6F78;
   --color-neutral-subtle: #F5F4F2;
 
-  --font-display: "Vazirmatn", sans-serif;
-  --font-body: "Vazirmatn", sans-serif;
+  --font-display: "Ravagh", "YekanBakh", sans-serif;
+  --font-body: "Ravagh", "YekanBakh", sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
 }
 

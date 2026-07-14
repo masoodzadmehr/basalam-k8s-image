@@ -11,11 +11,12 @@ import type { Book, User, Borrowing } from '../../../core/models';
   selector: 'app-borrowing-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  styleUrl: './borrowing-form.component.scss',
   template: `
     <div class="max-w-xl mx-auto space-y-6">
       <div>
-        <h1 class="font-display text-2xl font-extrabold text-ink">Borrow / Return</h1>
-        <p class="text-ink-muted text-sm mt-1">Manage book borrowings and returns</p>
+        <h1 class="font-display text-2xl font-extrabold text-ink">امانت / برگشت</h1>
+        <p class="text-ink-muted text-sm mt-1">مدیریت امانت و برگشت کتاب‌ها</p>
       </div>
 
       <!-- Tab toggle -->
@@ -26,7 +27,8 @@ import type { Book, User, Borrowing } from '../../../core/models';
                 [class.text-ink-muted]="activeTab() !== 'borrow'"
                 [class.hover:text-ink]="activeTab() !== 'borrow'"
                 (click)="switchTab('borrow')">
-          Borrow
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 inline-block ml-1"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          امانت
         </button>
         <button class="flex-1 py-2.5 text-sm font-medium text-center transition-colors duration-100"
                 [class.bg-ink]="activeTab() === 'return'"
@@ -34,32 +36,33 @@ import type { Book, User, Borrowing } from '../../../core/models';
                 [class.text-ink-muted]="activeTab() !== 'return'"
                 [class.hover:text-ink]="activeTab() !== 'return'"
                 (click)="switchTab('return')">
-          Return
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 inline-block ml-1"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+          برگشت
         </button>
       </div>
 
       @if (activeTab() === 'borrow') {
         <div class="card">
-          <h2 class="font-display text-lg font-bold mb-5">Borrow a Book</h2>
+          <h2 class="font-display text-lg font-bold mb-5">امانت کتاب</h2>
           <form [formGroup]="borrowForm" (ngSubmit)="onBorrow()" class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-ink-light mb-1.5">Book</label>
+              <label class="block text-sm font-medium text-ink-light mb-1.5">کتاب</label>
               <select formControlName="bookId" class="input-field" (focus)="searchBooks()" (click)="searchBooks()">
-                <option [ngValue]="null" disabled>Select a book...</option>
+                <option [ngValue]="null" disabled>انتخاب کتاب...</option>
                 @for (book of books(); track book.id) {
-                  <option [ngValue]="book.id">{{ book.title }} ({{ book.availableCopies }} available)</option>
+                  <option [ngValue]="book.id">{{ book.title }} ({{ book.availableCopies }} نسخه موجود)</option>
                 }
               </select>
               @if (borrowForm.get('bookId')?.invalid && borrowForm.get('bookId')?.touched) {
-                <p class="text-danger text-xs mt-1">Book is required</p>
+                <p class="text-danger text-xs mt-1">کتاب الزامی است</p>
               }
             </div>
 
             @if (canBorrowForOthers()) {
               <div>
-                <label class="block text-sm font-medium text-ink-light mb-1.5">User (optional)</label>
+                <label class="block text-sm font-medium text-ink-light mb-1.5">کاربر (اختیاری)</label>
                 <select formControlName="userId" class="input-field" (focus)="loadUsers()" (click)="loadUsers()">
-                  <option [ngValue]="null">Myself</option>
+                  <option [ngValue]="null">خودم</option>
                   @for (user of users(); track user.id) {
                     <option [ngValue]="user.id">{{ user.username }} ({{ user.firstName }} {{ user.lastName }})</option>
                   }
@@ -74,9 +77,9 @@ import type { Book, User, Borrowing } from '../../../core/models';
                 @if (loading) {
                   <span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                 }
-                Borrow
+                امانت
               </button>
-              <a routerLink="/borrowings" class="btn btn-ghost">Cancel</a>
+              <a routerLink="/borrowings" class="btn btn-ghost">انصراف</a>
             </div>
           </form>
         </div>
@@ -84,14 +87,14 @@ import type { Book, User, Borrowing } from '../../../core/models';
 
       @if (activeTab() === 'return') {
         <div class="card">
-          <h2 class="font-display text-lg font-bold mb-5">Return a Book</h2>
+          <h2 class="font-display text-lg font-bold mb-5">برگشت کتاب</h2>
           <form [formGroup]="returnForm" (ngSubmit)="onReturn()" class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-ink-light mb-1.5">Borrowing ID</label>
+              <label class="block text-sm font-medium text-ink-light mb-1.5">شناسه امانت</label>
               <input type="text" formControlName="borrowingId"
-                     class="input-field" placeholder="Enter the borrowing ID..." />
+                     class="input-field" placeholder="شناسه امانت را وارد کنید..." />
               @if (returnForm.get('borrowingId')?.invalid && returnForm.get('borrowingId')?.touched) {
-                <p class="text-danger text-xs mt-1">Borrowing ID is required</p>
+                <p class="text-danger text-xs mt-1">شناسه امانت الزامی است</p>
               }
             </div>
 
@@ -102,9 +105,9 @@ import type { Book, User, Borrowing } from '../../../core/models';
                 @if (loading) {
                   <span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                 }
-                Return Book
+                برگشت کتاب
               </button>
-              <a routerLink="/borrowings" class="btn btn-ghost">Cancel</a>
+              <a routerLink="/borrowings" class="btn btn-ghost">انصراف</a>
             </div>
           </form>
         </div>
@@ -189,12 +192,12 @@ export class BorrowingFormComponent {
     this.apiService.post<Borrowing>('/borrowings', body).subscribe({
       next: () => {
         this.loading = false;
-        this.toastService.show('Book borrowed successfully!', 'success');
+        this.toastService.show('کتاب با موفقیت امانت داده شد!', 'success');
         this.router.navigate(['/borrowings']);
       },
       error: (err) => {
         this.loading = false;
-        this.toastService.show(err?.error?.message ?? 'Failed to borrow book', 'error');
+        this.toastService.show(err?.error?.message ?? 'خطا در امانت کتاب', 'error');
       },
     });
   }
@@ -209,12 +212,12 @@ export class BorrowingFormComponent {
     this.apiService.post<Borrowing>(`/borrowings/${borrowingId}/return`, {}).subscribe({
       next: () => {
         this.loading = false;
-        this.toastService.show('Book returned successfully!', 'success');
+        this.toastService.show('کتاب با موفقیت برگشت داده شد!', 'success');
         this.router.navigate(['/borrowings/all']);
       },
       error: (err) => {
         this.loading = false;
-        this.toastService.show(err?.error?.message ?? 'Failed to return book', 'error');
+        this.toastService.show(err?.error?.message ?? 'خطا در برگشت کتاب', 'error');
       },
     });
   }

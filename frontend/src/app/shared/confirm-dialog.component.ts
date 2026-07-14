@@ -22,10 +22,10 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 })
 export class ConfirmDialogComponent {
   @Input() open = false;
-  @Input() title = 'Confirm';
-  @Input() message = 'Are you sure?';
-  @Input() confirmLabel = 'Confirm';
-  @Input() cancelLabel = 'Cancel';
+  @Input() title = 'تایید';
+  @Input() message = 'آیا اطمینان دارید؟';
+  @Input() confirmLabel = 'تایید';
+  @Input() cancelLabel = 'انصراف';
 
   @Output() confirmed = new EventEmitter<boolean>();
 

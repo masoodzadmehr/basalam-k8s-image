@@ -10,91 +10,96 @@ import type { User } from '../../../core/models';
   selector: 'app-profile',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, NgClass],
+  styleUrl: './profile.component.scss',
   template: `
-    <div class="max-w-2xl mx-auto space-y-6">
-      <h1 class="font-display text-2xl font-extrabold text-ink">My Profile</h1>
+    <div class="profile">
+      <h1 class="profile__title">&#x200F;&#x67E;&#x631;&#x648;&#x641;&#x627;&#x6CC;&#x644; &#x645;&#x646;</h1>
 
       @if (loading()) {
-        <div class="flex justify-center py-16">
-          <div class="animate-spin h-8 w-8 border-2 border-ink/15 border-t-ink rounded-full"></div>
+        <div class="profile__loading">
+          <div class="profile__spinner"></div>
         </div>
       } @else if (user(); as u) {
-        <div class="card !p-0 overflow-hidden">
-          <!-- Profile header -->
-          <div class="flex flex-wrap items-center justify-between gap-4 p-6 border-b border-border">
-            <h2 class="font-display text-xl font-bold text-ink">
+        <div class="profile__card">
+          <!-- Header -->
+          <div class="profile__header">
+            <h2 class="profile__header-name">
               {{ u.firstName }} {{ u.lastName }}
             </h2>
-            <span class="badge"
+            <span class="profile__badge"
                   [ngClass]="{
-                    'badge-info': u.role === 'ADMIN',
-                    'badge-warning': u.role === 'LIBRARIAN',
-                    'badge-neutral': u.role === 'USER'
+                    'profile__badge--admin': u.role === 'ADMIN',
+                    'profile__badge--librarian': u.role === 'LIBRARIAN',
+                    'profile__badge--user': u.role === 'USER'
                   }">
-              {{ u.role }}
+              {{ u.role === 'ADMIN' ? '&#x645;&#x62F;&#x6CC;&#x631;' : u.role === 'LIBRARIAN' ? '&#x6A9;&#x62A;&#x627;&#x628;&#x62F;&#x627;&#x631;' : '&#x6A9;&#x627;&#x631;&#x628;&#x631;' }}
             </span>
           </div>
 
-          <!-- Profile form -->
-          <div class="p-6">
-            <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="space-y-5">
-              <div>
-                <label class="block text-sm font-medium text-ink-light mb-1.5">Username</label>
+          <!-- Form -->
+          <div class="profile__body">
+            <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile__form">
+              <div class="profile__field">
+                <label class="profile__label">&#x200F;&#x646;&#x627;&#x645; &#x6A9;&#x627;&#x631;&#x628;&#x631;&#x6CC;</label>
                 <input type="text" formControlName="username"
-                       class="input-field !bg-page !text-ink-light cursor-not-allowed"
+                       class="profile__input profile__input--readonly"
                        readonly />
               </div>
 
-              <div>
-                <label class="block text-sm font-medium text-ink-light mb-1.5">Email</label>
+              <div class="profile__field">
+                <label class="profile__label">&#x200F;&#x627;&#x6CC;&#x645;&#x6CC;&#x644;</label>
                 <input type="email" formControlName="email"
-                       class="input-field"
-                       [class.!border-danger]="profileForm.get('email')?.invalid
+                       class="profile__input"
+                       [class.profile__input--error]="profileForm.get('email')?.invalid
                                             && profileForm.get('email')?.touched" />
                 @if (profileForm.get('email')?.invalid && profileForm.get('email')?.touched) {
-                  <p class="text-danger text-xs mt-1">Valid email is required</p>
+                  <p class="profile__hint profile__hint--error">&#x200F;&#x627;&#x6CC;&#x645;&#x6CC;&#x644; &#x645;&#x639;&#x62A;&#x628;&#x631; &#x627;&#x644;&#x632;&#x627;&#x645;&#x6CC; &#x627;&#x633;&#x62A;</p>
                 }
               </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div>
-                  <label class="block text-sm font-medium text-ink-light mb-1.5">First Name</label>
+              <div class="profile__row">
+                <div class="profile__field">
+                  <label class="profile__label">&#x200F;&#x646;&#x627;&#x645;</label>
                   <input type="text" formControlName="firstName"
-                         class="input-field"
-                         [class.!border-danger]="profileForm.get('firstName')?.invalid
+                         class="profile__input"
+                         [class.profile__input--error]="profileForm.get('firstName')?.invalid
                                               && profileForm.get('firstName')?.touched" />
                   @if (profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched) {
-                    <p class="text-danger text-xs mt-1">Required</p>
+                    <p class="profile__hint profile__hint--error">&#x200F;&#x627;&#x644;&#x632;&#x627;&#x645;&#x6CC;</p>
                   }
                 </div>
-                <div>
-                  <label class="block text-sm font-medium text-ink-light mb-1.5">Last Name</label>
+                <div class="profile__field">
+                  <label class="profile__label">&#x200F;&#x646;&#x627;&#x645; &#x62E;&#x627;&#x646;&#x648;&#x627;&#x62F;&#x6AF;&#x6CC;</label>
                   <input type="text" formControlName="lastName"
-                         class="input-field"
-                         [class.!border-danger]="profileForm.get('lastName')?.invalid
+                         class="profile__input"
+                         [class.profile__input--error]="profileForm.get('lastName')?.invalid
                                               && profileForm.get('lastName')?.touched" />
                   @if (profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched) {
-                    <p class="text-danger text-xs mt-1">Required</p>
+                    <p class="profile__hint profile__hint--error">&#x200F;&#x627;&#x644;&#x632;&#x627;&#x645;&#x6CC;</p>
                   }
                 </div>
               </div>
 
-              <div>
-                <label class="block text-sm font-medium text-ink-light mb-1.5">Mobile (optional)</label>
+              <div class="profile__field">
+                <label class="profile__label">&#x200F;&#x645;&#x648;&#x628;&#x627;&#x6CC;&#x644; (&#x627;&#x62E;&#x62A;&#x6CC;&#x627;&#x631;&#x6CC;)</label>
                 <input type="text" formControlName="mobile"
-                       class="input-field font-mono"
+                       class="profile__input profile__input--mono"
                        placeholder="0912..." />
               </div>
 
-              <div class="flex justify-end pt-2">
-                <button type="submit" class="btn btn-accent"
+              <div class="profile__actions">
+                <button type="submit" class="profile__submit"
                         [disabled]="profileForm.invalid || saving()">
                   @if (saving()) {
-                    <span class="inline-block animate-spin h-4 w-4 border-2 border-white
-                                 border-t-transparent rounded-full mr-2 align-middle"></span>
-                    Saving...
+                    <span class="profile__submit-spinner"></span>
+                    &#x200F;&#x62F;&#x631; &#x62D;&#x627;&#x644; &#x630;&#x62E;&#x6CC;&#x631;&#x647;...
                   } @else {
-                    Save Changes
+                    <svg class="profile__submit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                      <polyline points="17 21 17 13 7 13 7 21"/>
+                      <polyline points="7 3 7 8 15 8"/>
+                    </svg>
+                    &#x200F;&#x630;&#x62E;&#x6CC;&#x631;&#x647; &#x62A;&#x63A;&#x6CC;&#x6CC;&#x631;&#x627;&#x62A;
                   }
                 </button>
               </div>
@@ -143,7 +148,7 @@ export class ProfileComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
-        this.toast.show('Failed to load profile', 'error');
+        this.toast.show('&#x628;&#x627;&#x631;&#x6AF;&#x630;&#x627;&#x631;&#x6CC; &#x67E;&#x631;&#x648;&#x641;&#x627;&#x6CC;&#x644; &#x646;&#x627;&#x645;&#x648;&#x641;&#x642; &#x628;&#x648;&#x62F;', 'error');
       },
     });
   }
@@ -158,7 +163,7 @@ export class ProfileComponent implements OnInit {
       next: (updated) => {
         this.saving.set(false);
         this.user.set(updated);
-        this.toast.show('Profile updated successfully!', 'success');
+        this.toast.show('&#x67E;&#x631;&#x648;&#x641;&#x627;&#x6CC;&#x644; &#x628;&#x627; &#x645;&#x648;&#x641;&#x642;&#x6CC;&#x62A; &#x628;&#x631;&#x648;&#x632;&#x631;&#x633;&#x627;&#x646;&#x6CC; &#x634;&#x62F;!', 'success');
       },
       error: (err) => {
         this.saving.set(false);

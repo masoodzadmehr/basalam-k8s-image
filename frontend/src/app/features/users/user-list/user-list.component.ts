@@ -8,95 +8,107 @@ import type { User } from '../../../core/models';
   selector: 'app-user-list',
   standalone: true,
   imports: [CommonModule, RouterModule, NgClass],
+  styleUrl: './user-list.component.scss',
   template: `
-    <div class="space-y-6">
-      <h1 class="font-display text-2xl font-extrabold text-ink">Users</h1>
+    <div class="user-list">
+      <h1 class="user-list__title">&#x200F;&#x6A9;&#x627;&#x631;&#x628;&#x631;&#x627;&#x646;</h1>
 
       @if (loading()) {
-        <div class="flex justify-center py-16">
-          <div class="animate-spin h-8 w-8 border-2 border-ink/15 border-t-ink rounded-full"></div>
+        <div class="user-list__loading">
+          <div class="user-list__spinner"></div>
         </div>
       } @else if (users().length === 0) {
-        <div class="empty-state">
-          <div class="empty-state-icon">&#x1F465;</div>
-          <h3 class="empty-state-title">No users found</h3>
+        <div class="user-list__empty">
+          <div class="user-list__empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <h3 class="user-list__empty-title">&#x200F;&#x6A9;&#x627;&#x631;&#x628;&#x631;&#x6CC; &#x6CC;&#x627;&#x641;&#x62A; &#x646;&#x634;&#x62F;</h3>
         </div>
       } @else {
-        <div class="card-flush overflow-hidden">
-          <table class="table-root">
+        <div class="user-list__table-wrapper">
+          <table class="user-list__table">
             <thead>
               <tr>
-                <th>Username</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Email</th>
-                <th>Role</th>
+                <th>&#x200F;&#x646;&#x627;&#x645; &#x6A9;&#x627;&#x631;&#x628;&#x631;&#x6CC;</th>
+                <th>&#x200F;&#x646;&#x627;&#x645;</th>
+                <th>&#x200F;&#x646;&#x627;&#x645; &#x62E;&#x627;&#x646;&#x648;&#x627;&#x62F;&#x6AF;&#x6CC;</th>
+                <th>&#x200F;&#x627;&#x6CC;&#x645;&#x6CC;&#x644;</th>
+                <th>&#x200F;&#x646;&#x642;&#x634;</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
               @for (user of users(); track user.id) {
-                <tr class="cursor-pointer"
+                <tr class="user-list__row"
                     (click)="selectedUser.set(selectedUser()?.id === user.id ? null : user)">
                   <td>{{ user.username }}</td>
                   <td>{{ user.firstName }}</td>
                   <td>{{ user.lastName }}</td>
                   <td>{{ user.email }}</td>
                   <td>
-                    <span class="badge text-xs"
+                    <span class="user-list__badge"
                           [ngClass]="{
-                            'badge-info': user.role === 'ADMIN',
-                            'badge-warning': user.role === 'LIBRARIAN',
-                            'badge-neutral': user.role === 'USER'
+                            'user-list__badge--admin': user.role === 'ADMIN',
+                            'user-list__badge--librarian': user.role === 'LIBRARIAN',
+                            'user-list__badge--user': user.role === 'USER'
                           }">
-                      {{ user.role }}
+                      {{ user.role === 'ADMIN' ? '&#x645;&#x62F;&#x6CC;&#x631;' : user.role === 'LIBRARIAN' ? '&#x6A9;&#x62A;&#x627;&#x628;&#x62F;&#x627;&#x631;' : '&#x6A9;&#x627;&#x631;&#x628;&#x631;' }}
                     </span>
                   </td>
-                  <td class="text-center">
-                    <span class="text-ink-muted text-sm">&#x1F441;</span>
+                  <td class="user-list__expand-icon-cell">
+                    <svg class="user-list__expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
                   </td>
                 </tr>
               }
             </tbody>
           </table>
 
-          <!-- Expanded user details row -->
+          <!-- Expanded user details -->
           @if (selectedUser(); as u) {
-            <div class="p-5 bg-page border-b border-border">
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-                <div>
-                  <span class="text-ink-muted text-xs uppercase tracking-wider">Username</span>
-                  <p class="text-ink font-medium mt-0.5">{{ u.username }}</p>
+            <div class="user-list__details">
+              <div class="user-list__details-grid">
+                <div class="user-list__detail-item">
+                  <span class="user-list__detail-label">&#x200F;&#x646;&#x627;&#x645; &#x6A9;&#x627;&#x631;&#x628;&#x631;&#x6CC;</span>
+                  <p class="user-list__detail-value user-list__detail-value--bold">{{ u.username }}</p>
                 </div>
-                <div>
-                  <span class="text-ink-muted text-xs uppercase tracking-wider">Email</span>
-                  <p class="text-ink mt-0.5">{{ u.email }}</p>
+                <div class="user-list__detail-item">
+                  <span class="user-list__detail-label">&#x200F;&#x627;&#x6CC;&#x645;&#x6CC;&#x644;</span>
+                  <p class="user-list__detail-value">{{ u.email }}</p>
                 </div>
-                <div>
-                  <span class="text-ink-muted text-xs uppercase tracking-wider">Mobile</span>
-                  <p class="text-ink mt-0.5">{{ u.mobile ?? 'N/A' }}</p>
+                <div class="user-list__detail-item">
+                  <span class="user-list__detail-label">&#x200F;&#x645;&#x648;&#x628;&#x627;&#x6CC;&#x644;</span>
+                  <p class="user-list__detail-value">{{ u.mobile ?? '&#x646;&#x62F;&#x627;&#x631;&#x62F;' }}</p>
                 </div>
-                <div>
-                  <span class="text-ink-muted text-xs uppercase tracking-wider">Full Name</span>
-                  <p class="text-ink mt-0.5">{{ u.firstName }} {{ u.lastName }}</p>
+                <div class="user-list__detail-item">
+                  <span class="user-list__detail-label">&#x200F;&#x646;&#x627;&#x645; &#x6A9;&#x627;&#x645;&#x644;</span>
+                  <p class="user-list__detail-value">{{ u.firstName }} {{ u.lastName }}</p>
                 </div>
-                <div>
-                  <span class="text-ink-muted text-xs uppercase tracking-wider">Role</span>
-                  <p class="mt-0.5">
-                    <span class="badge text-xs"
+                <div class="user-list__detail-item">
+                  <span class="user-list__detail-label">&#x200F;&#x646;&#x642;&#x634;</span>
+                  <p class="user-list__detail-value">
+                    <span class="user-list__badge"
                           [ngClass]="{
-                            'badge-info': u.role === 'ADMIN',
-                            'badge-warning': u.role === 'LIBRARIAN',
-                            'badge-neutral': u.role === 'USER'
+                            'user-list__badge--admin': u.role === 'ADMIN',
+                            'user-list__badge--librarian': u.role === 'LIBRARIAN',
+                            'user-list__badge--user': u.role === 'USER'
                           }">
-                      {{ u.role }}
+                      {{ u.role === 'ADMIN' ? '&#x645;&#x62F;&#x6CC;&#x631;' : u.role === 'LIBRARIAN' ? '&#x6A9;&#x62A;&#x627;&#x628;&#x62F;&#x627;&#x631;' : '&#x6A9;&#x627;&#x631;&#x628;&#x631;' }}
                     </span>
                   </p>
                 </div>
-                <div>
-                  <span class="text-ink-muted text-xs uppercase tracking-wider">Status</span>
-                  <p class="mt-0.5" [ngClass]="u.enabled ? 'text-success' : 'text-danger'">
-                    {{ u.enabled ? 'Active' : 'Disabled' }}
+                <div class="user-list__detail-item">
+                  <span class="user-list__detail-label">&#x200F;&#x648;&#x636;&#x639;&#x6CC;&#x62A;</span>
+                  <p class="user-list__detail-value"
+                     [ngClass]="u.enabled ? 'user-list__status--active' : 'user-list__status--disabled'">
+                    {{ u.enabled ? '&#x641;&#x639;&#x627;&#x644;' : '&#x63A;&#x6CC;&#x631;&#x641;&#x639;&#x627;&#x644;' }}
                   </p>
                 </div>
               </div>
@@ -104,13 +116,13 @@ import type { User } from '../../../core/models';
           }
 
           <!-- Pagination -->
-          <div class="flex flex-wrap items-center justify-between gap-4 p-4 border-t border-border">
-            <div class="text-sm text-ink-muted">
+          <div class="user-list__pagination">
+            <div class="user-list__pagination-info">
               {{ pageIndex * pageSize + 1 }}&ndash;{{ ((pageIndex + 1) * pageSize > totalElements() ? totalElements() : (pageIndex + 1) * pageSize) }}
-              of {{ totalElements() }}
+              &#x627;&#x632; {{ totalElements() }}
             </div>
-            <div class="flex items-center gap-2">
-              <select class="input-field w-auto text-sm !py-1.5"
+            <div class="user-list__pagination-controls">
+              <select class="user-list__page-size"
                       [value]="pageSize"
                       (change)="onPageSizeChange($any($event.target).value)">
                 <option [value]="5">5</option>
@@ -118,15 +130,13 @@ import type { User } from '../../../core/models';
                 <option [value]="20">20</option>
                 <option [value]="50">50</option>
               </select>
-              <span class="text-sm text-ink-muted">per page</span>
-              <div class="flex gap-1 ml-3">
-                <button class="btn btn-ghost btn-sm" [disabled]="pageIndex === 0" (click)="goToPage(0)">First</button>
-                <button class="btn btn-ghost btn-sm" [disabled]="pageIndex === 0" (click)="goToPage(pageIndex - 1)">Prev</button>
-                <span class="flex items-center px-2 text-sm text-ink tabular-nums">
-                  {{ pageIndex + 1 }} / {{ totalPages() || 1 }}
-                </span>
-                <button class="btn btn-ghost btn-sm" [disabled]="(pageIndex + 1) * pageSize >= totalElements()" (click)="goToPage(pageIndex + 1)">Next</button>
-                <button class="btn btn-ghost btn-sm" [disabled]="(pageIndex + 1) * pageSize >= totalElements()" (click)="goToPage(totalPages() - 1)">Last</button>
+              <span class="user-list__per-page">&#x62F;&#x631; &#x635;&#x641;&#x62D;&#x647;</span>
+              <div class="user-list__pagination-buttons">
+                <button class="user-list__page-btn" [disabled]="pageIndex === 0" (click)="goToPage(0)">&#x627;&#x648;&#x644;&#x6CC;&#x646;</button>
+                <button class="user-list__page-btn" [disabled]="pageIndex === 0" (click)="goToPage(pageIndex - 1)">&#x642;&#x628;&#x644;&#x6CC;</button>
+                <span class="user-list__page-num">{{ pageIndex + 1 }} / {{ totalPages() || 1 }}</span>
+                <button class="user-list__page-btn" [disabled]="(pageIndex + 1) * pageSize >= totalElements()" (click)="goToPage(pageIndex + 1)">&#x628;&#x639;&#x62F;&#x6CC;</button>
+                <button class="user-list__page-btn" [disabled]="(pageIndex + 1) * pageSize >= totalElements()" (click)="goToPage(totalPages() - 1)">&#x622;&#x62E;&#x631;&#x6CC;&#x646;</button>
               </div>
             </div>
           </div>

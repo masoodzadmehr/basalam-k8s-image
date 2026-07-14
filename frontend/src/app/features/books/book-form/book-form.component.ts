@@ -14,146 +14,150 @@ import type { Book, Location } from '../../../core/models';
     RouterModule,
     NgClass,
   ],
+  styleUrl: './book-form.component.scss',
   template: `
-    <div class="max-w-2xl space-y-6">
+    <div class="book-form">
       <!-- Header -->
-      <div>
-        <a routerLink="/books" class="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink transition-colors group mb-4">
-          <svg class="w-4 h-4 transition-transform duration-150 group-hover:translate-x-1 rtl:group-hover:-translate-x-1"
+      <div class="book-form__header">
+        <a routerLink="/books" class="book-form__back">
+          <svg class="book-form__back-icon"
                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
           </svg>
-          Back to catalog
+          بازگشت به فهرست
         </a>
-        <h1 class="font-display text-2xl font-extrabold text-ink">{{ editMode ? 'Edit Book' : 'Add Book' }}</h1>
+        <h1 class="book-form__title">{{ editMode ? 'ویرایش کتاب' : 'افزودن کتاب' }}</h1>
       </div>
 
       <!-- Loading -->
       @if (loading()) {
-        <div class="flex justify-center py-16">
-          <div class="animate-spin rounded-full h-8 w-8 border-2 border-ink/15 border-t-ink"></div>
+        <div class="book-form__loading">
+          <div class="book-form__spinner"></div>
         </div>
       }
 
       <!-- Form -->
       @if (!loading()) {
-        <div class="card !p-6">
-          <form [formGroup]="bookForm" (ngSubmit)="onSubmit()" class="space-y-5">
+        <div class="book-form__card">
+          <form [formGroup]="bookForm" (ngSubmit)="onSubmit()" class="book-form__form">
             <!-- Title -->
-            <div>
-              <label for="title" class="block text-sm font-medium text-ink-light mb-1.5">Title</label>
+            <div class="book-form__field">
+              <label for="title" class="book-form__label">عنوان</label>
               <input
                 id="title"
                 type="text"
                 formControlName="title"
-                placeholder="Book title"
-                class="input-field"
-                [ngClass]="{ '!border-danger': bookForm.get('title')?.invalid && bookForm.get('title')?.touched }"
+                placeholder="عنوان کتاب"
+                class="book-form__input"
+                [ngClass]="{ 'book-form__input--error': bookForm.get('title')?.invalid && bookForm.get('title')?.touched }"
               />
               @if (bookForm.get('title')?.invalid && bookForm.get('title')?.touched) {
-                <p class="text-danger text-xs mt-1">Title is required</p>
+                <p class="book-form__error">عنوان الزامی است</p>
               }
             </div>
 
             <!-- Author -->
-            <div>
-              <label for="author" class="block text-sm font-medium text-ink-light mb-1.5">Author</label>
+            <div class="book-form__field">
+              <label for="author" class="book-form__label">نویسنده</label>
               <input
                 id="author"
                 type="text"
                 formControlName="author"
-                placeholder="Author name"
-                class="input-field"
-                [ngClass]="{ '!border-danger': bookForm.get('author')?.invalid && bookForm.get('author')?.touched }"
+                placeholder="نام نویسنده"
+                class="book-form__input"
+                [ngClass]="{ 'book-form__input--error': bookForm.get('author')?.invalid && bookForm.get('author')?.touched }"
               />
               @if (bookForm.get('author')?.invalid && bookForm.get('author')?.touched) {
-                <p class="text-danger text-xs mt-1">Author is required</p>
+                <p class="book-form__error">نویسنده الزامی است</p>
               }
             </div>
 
             <!-- ISBN -->
-            <div>
-              <label for="isbn" class="block text-sm font-medium text-ink-light mb-1.5">ISBN</label>
+            <div class="book-form__field">
+              <label for="isbn" class="book-form__label">شابک</label>
               <input
                 id="isbn"
                 type="text"
                 formControlName="isbn"
-                placeholder="ISBN-10 or ISBN-13"
-                class="input-field font-mono"
-                [ngClass]="{ '!border-danger': bookForm.get('isbn')?.invalid && bookForm.get('isbn')?.touched }"
+                placeholder="شابک ۱۰ یا ۱۳ رقمی"
+                class="book-form__input book-form__input--mono"
+                [ngClass]="{ 'book-form__input--error': bookForm.get('isbn')?.invalid && bookForm.get('isbn')?.touched }"
               />
               @if (bookForm.get('isbn')?.invalid && bookForm.get('isbn')?.touched) {
-                <p class="text-danger text-xs mt-1">ISBN is required</p>
+                <p class="book-form__error">شابک الزامی است</p>
               }
             </div>
 
             <!-- Publisher + Publication Year -->
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label for="publisher" class="block text-sm font-medium text-ink-light mb-1.5">Publisher</label>
+            <div class="book-form__row">
+              <div class="book-form__field">
+                <label for="publisher" class="book-form__label">ناشر</label>
                 <input
                   id="publisher"
                   type="text"
                   formControlName="publisher"
-                  placeholder="Publisher (optional)"
-                  class="input-field"
+                  placeholder="ناشر (اختیاری)"
+                  class="book-form__input"
                 />
               </div>
-              <div>
-                <label for="publicationYear" class="block text-sm font-medium text-ink-light mb-1.5">Year</label>
+              <div class="book-form__field">
+                <label for="publicationYear" class="book-form__label">سال</label>
                 <input
                   id="publicationYear"
                   type="number"
                   formControlName="publicationYear"
-                  placeholder="e.g. 2025"
-                  class="input-field"
+                  placeholder="مثلاً ۲۰۲۵"
+                  class="book-form__input"
                 />
               </div>
             </div>
 
             <!-- Copies + Shelf -->
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label for="copiesCount" class="block text-sm font-medium text-ink-light mb-1.5">Copies</label>
+            <div class="book-form__row">
+              <div class="book-form__field">
+                <label for="copiesCount" class="book-form__label">تعداد نسخه</label>
                 <input
                   id="copiesCount"
                   type="number"
                   formControlName="copiesCount"
                   min="1"
-                  class="input-field"
-                  [ngClass]="{ '!border-danger': bookForm.get('copiesCount')?.invalid && bookForm.get('copiesCount')?.touched }"
+                  class="book-form__input"
+                  [ngClass]="{ 'book-form__input--error': bookForm.get('copiesCount')?.invalid && bookForm.get('copiesCount')?.touched }"
                 />
                 @if (bookForm.get('copiesCount')?.invalid && bookForm.get('copiesCount')?.touched) {
-                  <p class="text-danger text-xs mt-1">At least 1 copy required</p>
+                  <p class="book-form__error">حداقل ۱ نسخه الزامی است</p>
                 }
               </div>
-              <div>
-                <label for="shelfId" class="block text-sm font-medium text-ink-light mb-1.5">Shelf</label>
+              <div class="book-form__field">
+                <label for="shelfId" class="book-form__label">قفسه</label>
                 <select
                   id="shelfId"
                   formControlName="shelfId"
-                  class="input-field"
-                  [ngClass]="{ '!border-danger': bookForm.get('shelfId')?.invalid && bookForm.get('shelfId')?.touched }"
+                  class="book-form__input"
+                  [ngClass]="{ 'book-form__input--error': bookForm.get('shelfId')?.invalid && bookForm.get('shelfId')?.touched }"
                 >
-                  <option [ngValue]="null" disabled selected>Select a shelf</option>
+                  <option [ngValue]="null" disabled selected>انتخاب قفسه</option>
                   @for (shelf of shelves(); track shelf.id) {
                     <option [ngValue]="shelf.id">{{ shelf.name }}</option>
                   }
                 </select>
                 @if (bookForm.get('shelfId')?.invalid && bookForm.get('shelfId')?.touched) {
-                  <p class="text-danger text-xs mt-1">Shelf is required</p>
+                  <p class="book-form__error">قفسه الزامی است</p>
                 }
               </div>
             </div>
 
             <!-- Actions -->
-            <div class="flex justify-end gap-3 pt-4 border-t border-border">
-              <button type="button" class="btn btn-ghost" routerLink="/books">Cancel</button>
-              <button type="submit" class="btn btn-accent" [disabled]="bookForm.invalid || saving()">
+            <div class="book-form__actions">
+              <button type="button" class="book-form__btn book-form__btn--ghost" routerLink="/books">
+                انصراف
+              </button>
+              <button type="submit" class="book-form__btn book-form__btn--accent"
+                      [disabled]="bookForm.invalid || saving()">
                 @if (saving()) {
-                  <span class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white mr-2 align-middle"></span>
+                  <span class="book-form__btn-spinner"></span>
                 }
-                {{ editMode ? 'Update' : 'Create' }}
+                {{ editMode ? 'بروزرسانی' : 'ایجاد' }}
               </button>
             </div>
           </form>
@@ -239,7 +243,7 @@ export class BookFormComponent implements OnInit {
       this.apiService.put<Book>(`/books/${this.bookId}`, formValue).subscribe({
         next: () => {
           this.saving.set(false);
-          this.toastService.show('Book updated successfully!', 'success');
+          this.toastService.show('کتاب با موفقیت بروزرسانی شد!', 'success');
           this.router.navigate(['/books', this.bookId]);
         },
         error: (err) => {
@@ -251,7 +255,7 @@ export class BookFormComponent implements OnInit {
       this.apiService.post<Book>('/books', formValue).subscribe({
         next: (book) => {
           this.saving.set(false);
-          this.toastService.show('Book created successfully!', 'success');
+          this.toastService.show('کتاب با موفقیت ایجاد شد!', 'success');
           this.router.navigate(['/books', book.id]);
         },
         error: (err) => {

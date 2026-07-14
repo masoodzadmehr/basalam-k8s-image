@@ -10,6 +10,7 @@ import type { Borrowing } from '../../../core/models';
   selector: 'app-borrowing-list',
   standalone: true,
   imports: [CommonModule, RouterModule],
+  styleUrl: './borrowing-list.component.scss',
   template: `
     <div class="space-y-6">
       <!-- Header -->
@@ -17,20 +18,20 @@ import type { Borrowing } from '../../../core/models';
         <div>
           <h1 class="font-display text-2xl font-extrabold text-ink">
             @if (isOverdueMode) {
-              Overdue Borrowings
+              امانت‌های دیرکرد
             } @else if (isAllMode) {
-              All Borrowings
+              تمام امانت‌ها
             } @else {
-              My Borrowings
+              امانت‌های من
             }
           </h1>
           <p class="text-ink-muted text-sm mt-1">
             @if (isOverdueMode) {
-              Items past their due date
+              موارد گذشته از موعد تحویل
             } @else if (isAllMode) {
-              {{ totalElements() }} borrowing{{ totalElements() !== 1 ? 's' : '' }}
+              {{ totalElements() }} امانت
             } @else {
-              Your currently borrowed books
+              کتاب‌های در دست امانت شما
             }
           </p>
         </div>
@@ -40,21 +41,24 @@ import type { Borrowing } from '../../../core/models';
               class="input-field w-auto min-w-[150px]"
               [value]="statusFilter()"
               (change)="onStatusFilterChange($any($event.target).value)">
-              <option value="">All Statuses</option>
-              <option value="BORROWED">Active</option>
-              <option value="EXTENDED">Extended</option>
-              <option value="RETURNED">Returned</option>
+              <option value="">همه وضعیت‌ها</option>
+              <option value="BORROWED">فعال</option>
+              <option value="EXTENDED">تمدید شده</option>
+              <option value="RETURNED">برگشتی</option>
             </select>
           }
           <div class="flex gap-1">
             @if (canManageBorrowings() && !isAllMode) {
-              <a routerLink="/borrowings/all" class="btn btn-ghost btn-sm">View All</a>
+              <a routerLink="/borrowings/all" class="btn btn-ghost btn-sm">مشاهده همه</a>
             }
             @if (canManageBorrowings() && !isOverdueMode) {
-              <a routerLink="/borrowings/overdue" class="btn btn-ghost btn-sm">Overdue</a>
+              <a routerLink="/borrowings/overdue" class="btn btn-ghost btn-sm">دیرکرد</a>
             }
           </div>
-          <a routerLink="/borrowings/new" class="btn btn-accent btn-sm">Borrow</a>
+          <a routerLink="/borrowings/new" class="btn btn-accent btn-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            <span>امانت</span>
+          </a>
         </div>
       </div>
 
@@ -68,9 +72,16 @@ import type { Borrowing } from '../../../core/models';
       <!-- Empty -->
       @if (!loading() && borrowings().length === 0) {
         <div class="empty-state">
-          <div class="empty-state-icon">&#x1F4D6;</div>
-          <h3 class="empty-state-title">No borrowings found</h3>
-          <p class="empty-state-text">Active borrowings will appear here.</p>
+          <div class="empty-state-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-10 h-10">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              <line x1="8" y1="7" x2="16" y2="7"/>
+              <line x1="8" y1="11" x2="14" y2="11"/>
+            </svg>
+          </div>
+          <h3 class="empty-state-title">امانتی یافت نشد</h3>
+          <p class="empty-state-text">امانت‌های فعال اینجا نمایش داده می‌شوند.</p>
         </div>
       }
 
@@ -81,13 +92,13 @@ import type { Borrowing } from '../../../core/models';
             <thead>
               <tr>
                 @if (isAllMode || isOverdueMode) {
-                  <th>User</th>
+                  <th>کاربر</th>
                 }
-                <th>Book</th>
-                <th>Borrow Date</th>
-                <th>Due Date</th>
-                <th>Status</th>
-                <th class="hidden sm:table-cell">Actions</th>
+                <th>کتاب</th>
+                <th>تاریخ امانت</th>
+                <th>موعد تحویل</th>
+                <th>وضعیت</th>
+                <th class="hidden sm:table-cell">عملیات</th>
               </tr>
             </thead>
             <tbody>
@@ -104,16 +115,22 @@ import type { Borrowing } from '../../../core/models';
                   </td>
                   <td>
                     <span class="badge" [ngClass]="getStatusBadgeClass(b.status)">
-                      {{ b.status | titlecase }}
+                      {{ getStatusLabel(b.status) }}
                     </span>
                   </td>
                   <td class="hidden sm:table-cell">
                     <div class="flex gap-1">
                       @if (canExtend(b)) {
-                        <button class="btn btn-ghost btn-sm" (click)="extendBorrowing(b)">Extend</button>
+                        <button class="btn btn-ghost btn-sm" (click)="extendBorrowing(b)">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                          <span>تمدید</span>
+                        </button>
                       }
                       @if (canReturn(b)) {
-                        <button class="btn btn-accent btn-sm" (click)="returnBook(b)">Return</button>
+                        <button class="btn btn-accent btn-sm" (click)="returnBook(b)">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+                          <span>برگشت</span>
+                        </button>
                       }
                     </div>
                   </td>
@@ -134,21 +151,27 @@ import type { Borrowing } from '../../../core/models';
               }
               <h3 class="font-display font-semibold text-base mb-2">{{ b.bookTitle }}</h3>
               <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-muted mb-3">
-                <span>Borrowed: {{ b.borrowDate | date:'yyyy/MM/dd' }}</span>
+                <span>امانت: {{ b.borrowDate | date:'yyyy/MM/dd' }}</span>
                 <span [class.text-danger]="isOverdueMode || b.status === 'OVERDUE'">
-                  Due: {{ b.dueDate | date:'yyyy/MM/dd' }}
+                  تحویل: {{ b.dueDate | date:'yyyy/MM/dd' }}
                 </span>
               </div>
               <div class="flex items-center justify-between">
                 <span class="badge" [ngClass]="getStatusBadgeClass(b.status)">
-                  {{ b.status | titlecase }}
+                  {{ getStatusLabel(b.status) }}
                 </span>
                 <div class="flex gap-1">
                   @if (canExtend(b)) {
-                    <button class="btn btn-ghost btn-sm" (click)="extendBorrowing(b)">Extend</button>
+                    <button class="btn btn-ghost btn-sm" (click)="extendBorrowing(b)">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      <span>تمدید</span>
+                    </button>
                   }
                   @if (canReturn(b)) {
-                    <button class="btn btn-accent btn-sm" (click)="returnBook(b)">Return</button>
+                    <button class="btn btn-accent btn-sm" (click)="returnBook(b)">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+                      <span>برگشت</span>
+                    </button>
                   }
                 </div>
               </div>
@@ -160,11 +183,23 @@ import type { Borrowing } from '../../../core/models';
       <!-- Pagination -->
       @if (!loading() && totalElements() > pageSize) {
         <div class="flex items-center justify-center gap-2">
-          <button class="btn btn-ghost btn-sm" [disabled]="pageIndex === 0" (click)="goToPage(0)">First</button>
-          <button class="btn btn-ghost btn-sm" [disabled]="pageIndex === 0" (click)="goToPage(pageIndex - 1)">Prev</button>
-          <span class="text-sm text-ink-muted tabular-nums px-2">Page {{ pageIndex + 1 }} of {{ totalPages() }}</span>
-          <button class="btn btn-ghost btn-sm" [disabled]="pageIndex + 1 >= totalPages()" (click)="goToPage(pageIndex + 1)">Next</button>
-          <button class="btn btn-ghost btn-sm" [disabled]="pageIndex + 1 >= totalPages()" (click)="goToPage(totalPages() - 1)">Last</button>
+          <button class="btn btn-ghost btn-sm" [disabled]="pageIndex === 0" (click)="goToPage(0)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 rotate-180"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>
+            <span>اولین</span>
+          </button>
+          <button class="btn btn-ghost btn-sm" [disabled]="pageIndex === 0" (click)="goToPage(pageIndex - 1)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 rotate-180"><polyline points="15 18 9 12 15 6"/></svg>
+            <span>قبلی</span>
+          </button>
+          <span class="text-sm text-ink-muted tabular-nums px-2">صفحه {{ pageIndex + 1 }} از {{ totalPages() }}</span>
+          <button class="btn btn-ghost btn-sm" [disabled]="pageIndex + 1 >= totalPages()" (click)="goToPage(pageIndex + 1)">
+            <span>بعدی</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <button class="btn btn-ghost btn-sm" [disabled]="pageIndex + 1 >= totalPages()" (click)="goToPage(totalPages() - 1)">
+            <span>آخرین</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+          </button>
         </div>
       }
     </div>
@@ -239,11 +274,11 @@ export class BorrowingListComponent implements OnInit {
   extendBorrowing(borrowing: Borrowing): void {
     this.apiService.post(`/borrowings/${borrowing.id}/extend`, {}).subscribe({
       next: () => {
-        this.toastService.show('Borrowing extended!', 'success');
+        this.toastService.show('امانت تمدید شد!', 'success');
         this.loadBorrowings();
       },
       error: (err) => {
-        this.toastService.show(err?.error?.message ?? 'Failed to extend', 'error');
+        this.toastService.show(err?.error?.message ?? 'خطا در تمدید امانت', 'error');
       },
     });
   }
@@ -251,11 +286,11 @@ export class BorrowingListComponent implements OnInit {
   returnBook(borrowing: Borrowing): void {
     this.apiService.post(`/borrowings/${borrowing.id}/return`, {}).subscribe({
       next: () => {
-        this.toastService.show('Book returned!', 'success');
+        this.toastService.show('کتاب برگشت داده شد!', 'success');
         this.loadBorrowings();
       },
       error: (err) => {
-        this.toastService.show(err?.error?.message ?? 'Failed to return book', 'error');
+        this.toastService.show(err?.error?.message ?? 'خطا در برگشت کتاب', 'error');
       },
     });
   }
@@ -263,6 +298,16 @@ export class BorrowingListComponent implements OnInit {
   canManageBorrowings(): boolean {
     const role = this.userRole();
     return role === 'LIBRARIAN' || role === 'ADMIN';
+  }
+
+  getStatusLabel(status: string): string {
+    switch (status) {
+      case 'BORROWED': return 'فعال';
+      case 'EXTENDED': return 'تمدید';
+      case 'OVERDUE': return 'دیرکرد';
+      case 'RETURNED': return 'برگشتی';
+      default: return status;
+    }
   }
 
   getStatusBadgeClass(status: string): string {

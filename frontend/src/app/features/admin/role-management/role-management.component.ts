@@ -8,30 +8,38 @@ import type { User } from '../../../core/models';
   selector: 'app-role-management',
   standalone: true,
   imports: [CommonModule, NgClass],
+  styleUrl: './role-management.component.scss',
   template: `
-    <div class="space-y-6">
-      <h1 class="font-display text-2xl font-extrabold text-ink">Role Management</h1>
+    <div class="role-mgmt">
+      <h1 class="role-mgmt__title">&#x200F;&#x645;&#x62F;&#x6CC;&#x631;&#x6CC;&#x62A; &#x646;&#x642;&#x634;&#x200C;&#x647;&#x627;</h1>
 
       @if (loading()) {
-        <div class="flex justify-center py-16">
-          <div class="animate-spin h-8 w-8 border-2 border-ink/15 border-t-ink rounded-full"></div>
+        <div class="role-mgmt__loading">
+          <div class="role-mgmt__spinner"></div>
         </div>
       } @else if (users().length === 0) {
-        <div class="empty-state">
-          <div class="empty-state-icon">&#x2699;&#xFE0F;</div>
-          <h3 class="empty-state-title">No users found</h3>
+        <div class="role-mgmt__empty">
+          <div class="role-mgmt__empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <h3 class="role-mgmt__empty-title">&#x200F;&#x6A9;&#x627;&#x631;&#x628;&#x631;&#x6CC; &#x6CC;&#x627;&#x641;&#x62A; &#x646;&#x634;&#x62F;</h3>
         </div>
       } @else {
-        <div class="card-flush overflow-hidden">
-          <table class="table-root">
+        <div class="role-mgmt__table-wrapper">
+          <table class="role-mgmt__table">
             <thead>
               <tr>
-                <th>Username</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Email</th>
-                <th>Current Role</th>
-                <th>Change to</th>
+                <th>&#x200F;&#x646;&#x627;&#x645; &#x6A9;&#x627;&#x631;&#x628;&#x631;&#x6CC;</th>
+                <th>&#x200F;&#x646;&#x627;&#x645;</th>
+                <th>&#x200F;&#x646;&#x627;&#x645; &#x62E;&#x627;&#x646;&#x648;&#x627;&#x62F;&#x6AF;&#x6CC;</th>
+                <th>&#x200F;&#x627;&#x6CC;&#x645;&#x6CC;&#x644;</th>
+                <th>&#x200F;&#x646;&#x642;&#x634; &#x641;&#x639;&#x644;&#x6CC;</th>
+                <th>&#x200F;&#x62A;&#x63A;&#x6CC;&#x6CC;&#x631; &#x628;&#x647;</th>
               </tr>
             </thead>
             <tbody>
@@ -42,26 +50,25 @@ import type { User } from '../../../core/models';
                   <td>{{ user.lastName }}</td>
                   <td>{{ user.email }}</td>
                   <td>
-                    <span class="badge text-xs"
+                    <span class="role-mgmt__badge"
                           [ngClass]="{
-                            'badge-info': user.role === 'ADMIN',
-                            'badge-warning': user.role === 'LIBRARIAN',
-                            'badge-neutral': user.role === 'USER'
+                            'role-mgmt__badge--admin': user.role === 'ADMIN',
+                            'role-mgmt__badge--librarian': user.role === 'LIBRARIAN',
+                            'role-mgmt__badge--user': user.role === 'USER'
                           }">
-                      {{ user.role }}
+                      {{ user.role === 'ADMIN' ? '&#x645;&#x62F;&#x6CC;&#x631;' : user.role === 'LIBRARIAN' ? '&#x6A9;&#x62A;&#x627;&#x628;&#x62F;&#x627;&#x631;' : '&#x6A9;&#x627;&#x631;&#x628;&#x631;' }}
                     </span>
                   </td>
                   <td>
                     @if (savingId() === user.id) {
-                      <div class="animate-spin h-5 w-5 border-2 border-ink/15 border-t-ink
-                                  rounded-full inline-block"></div>
+                      <div class="role-mgmt__saving-spinner"></div>
                     } @else {
-                      <select class="input-field w-auto text-sm !py-1"
+                      <select class="role-mgmt__role-select"
                               [value]="user.role"
                               (change)="changeRole(user, $any($event.target).value)">
-                        @for (role of roles; track role) {
-                          <option [value]="role">{{ role }}</option>
-                        }
+                        <option value="USER">&#x200F;&#x6A9;&#x627;&#x631;&#x628;&#x631;</option>
+                        <option value="LIBRARIAN">&#x200F;&#x6A9;&#x62A;&#x627;&#x628;&#x62F;&#x627;&#x631;</option>
+                        <option value="ADMIN">&#x200F;&#x645;&#x62F;&#x6CC;&#x631;</option>
                       </select>
                     }
                   </td>
@@ -71,13 +78,13 @@ import type { User } from '../../../core/models';
           </table>
 
           <!-- Pagination -->
-          <div class="flex flex-wrap items-center justify-between gap-4 p-4 border-t border-border">
-            <div class="text-sm text-ink-muted">
+          <div class="role-mgmt__pagination">
+            <div class="role-mgmt__pagination-info">
               {{ pageIndex * pageSize + 1 }}&ndash;{{ ((pageIndex + 1) * pageSize > totalElements() ? totalElements() : (pageIndex + 1) * pageSize) }}
-              of {{ totalElements() }}
+              &#x627;&#x632; {{ totalElements() }}
             </div>
-            <div class="flex items-center gap-2">
-              <select class="input-field w-auto text-sm !py-1.5"
+            <div class="role-mgmt__pagination-controls">
+              <select class="role-mgmt__page-size"
                       [value]="pageSize"
                       (change)="onPageSizeChange($any($event.target).value)">
                 <option [value]="5">5</option>
@@ -85,15 +92,13 @@ import type { User } from '../../../core/models';
                 <option [value]="20">20</option>
                 <option [value]="50">50</option>
               </select>
-              <span class="text-sm text-ink-muted">per page</span>
-              <div class="flex gap-1 ml-3">
-                <button class="btn btn-ghost btn-sm" [disabled]="pageIndex === 0" (click)="goToPage(0)">First</button>
-                <button class="btn btn-ghost btn-sm" [disabled]="pageIndex === 0" (click)="goToPage(pageIndex - 1)">Prev</button>
-                <span class="flex items-center px-2 text-sm text-ink tabular-nums">
-                  {{ pageIndex + 1 }} / {{ totalPages() || 1 }}
-                </span>
-                <button class="btn btn-ghost btn-sm" [disabled]="(pageIndex + 1) * pageSize >= totalElements()" (click)="goToPage(pageIndex + 1)">Next</button>
-                <button class="btn btn-ghost btn-sm" [disabled]="(pageIndex + 1) * pageSize >= totalElements()" (click)="goToPage(totalPages() - 1)">Last</button>
+              <span class="role-mgmt__per-page">&#x62F;&#x631; &#x635;&#x641;&#x62D;&#x647;</span>
+              <div class="role-mgmt__pagination-buttons">
+                <button class="role-mgmt__page-btn" [disabled]="pageIndex === 0" (click)="goToPage(0)">&#x627;&#x648;&#x644;&#x6CC;&#x646;</button>
+                <button class="role-mgmt__page-btn" [disabled]="pageIndex === 0" (click)="goToPage(pageIndex - 1)">&#x642;&#x628;&#x644;&#x6CC;</button>
+                <span class="role-mgmt__page-num">{{ pageIndex + 1 }} / {{ totalPages() || 1 }}</span>
+                <button class="role-mgmt__page-btn" [disabled]="(pageIndex + 1) * pageSize >= totalElements()" (click)="goToPage(pageIndex + 1)">&#x628;&#x639;&#x62F;&#x6CC;</button>
+                <button class="role-mgmt__page-btn" [disabled]="(pageIndex + 1) * pageSize >= totalElements()" (click)="goToPage(totalPages() - 1)">&#x622;&#x62E;&#x631;&#x6CC;&#x646;</button>
               </div>
             </div>
           </div>
@@ -161,7 +166,7 @@ export class RoleManagementComponent implements OnInit {
         this.users.update(list =>
           list.map(u => u.id === user.id ? { ...u, role: updated.role } : u),
         );
-        this.toast.show('Role updated successfully!', 'success');
+        this.toast.show('&#x646;&#x642;&#x634; &#x628;&#x627; &#x645;&#x648;&#x641;&#x642;&#x6CC;&#x62A; &#x628;&#x631;&#x648;&#x632;&#x631;&#x633;&#x627;&#x646;&#x6CC; &#x634;&#x62F;!', 'success');
       },
       error: (err) => {
         this.savingId.set(null);

@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c ' *)",
+      "Bash(mkdir -p /data/gitProject/basalam-k8s-image/frontend/src/assets/fonts/ravagh && cp \"/home/masoudzadmehr/Downloads/Ravagh Pro/Webfonts/woff2/\"*.woff2 \"/home/masoudzadmehr/Downloads/Ravagh Pro/Webfonts/woff/\"*.woff /data/gitProject/basalam-k8s-image/frontend/src/assets/fonts/ravagh/ && rtk ls /data/gitProject/basalam-k8s-image/frontend/src/assets/fonts/ravagh/)"
+    ],
+    "additionalDirectories": [
+      "/home/masoudzadmehr/Downloads/Ravagh Pro/Webfonts/woff2"
+    ]
+  }
+}

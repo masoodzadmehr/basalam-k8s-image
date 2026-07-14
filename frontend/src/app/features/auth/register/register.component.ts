@@ -10,7 +10,7 @@ import type { RegisterRequest } from '../../../core/models';
   standalone: true,
   imports: [ReactiveFormsModule, RouterModule],
   templateUrl: './register.component.html',
-  styles: ``,
+  styleUrl: './register.component.scss',
 })
 export class RegisterComponent {
   private readonly authService = inject(AuthService);
@@ -29,9 +29,11 @@ export class RegisterComponent {
 
   loading = false;
   errorMessage = '';
+  showPassword = false;
 
   onSubmit(): void {
     if (this.registerForm.invalid) {
+      this.registerForm.markAllAsTouched();
       return;
     }
     this.loading = true;
@@ -40,12 +42,12 @@ export class RegisterComponent {
     this.authService.register(request).subscribe({
       next: () => {
         this.loading = false;
-        this.toastService.show('Registration successful!', 'success');
+        this.toastService.show('ثبت‌نام با موفقیت انجام شد!', 'success');
         this.router.navigate(['/books']);
       },
       error: (err) => {
         this.loading = false;
-        this.errorMessage = err?.error?.message ?? 'Registration failed. Please try again.';
+        this.errorMessage = err?.error?.message ?? 'ثبت‌نام ناموفق بود. لطفاً دوباره تلاش کنید.';
         this.toastService.show(this.errorMessage, 'error');
       },
     });

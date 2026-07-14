@@ -14,36 +14,37 @@ import type { Book } from '../../../core/models';
     ReactiveFormsModule,
     RouterModule,
   ],
+  styleUrl: './book-list.component.scss',
   template: `
-    <div class="space-y-6">
+    <div class="book-list">
       <!-- Header -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="book-list__header">
         <div>
-          <h1 class="font-display text-2xl font-extrabold text-ink">Books</h1>
-          <p class="text-ink-muted text-sm mt-1">
-            {{ totalElements() }} book{{ totalElements() !== 1 ? 's' : '' }} in the catalog
+          <h1 class="book-list__title">کتاب‌ها</h1>
+          <p class="book-list__subtitle">
+            {{ totalElements() }} کتاب در فهرست
           </p>
         </div>
         @if (canManage()) {
-          <a routerLink="/books/new" class="btn btn-primary self-start">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <a routerLink="/books/new" class="book-list__add-btn">
+            <svg class="book-list__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
-            Add Book
+            افزودن کتاب
           </a>
         }
       </div>
 
       <!-- Search -->
-      <div class="relative">
+      <div class="book-list__search-wrapper">
         <input
           type="text"
           [formControl]="searchControl"
-          placeholder="Search by title, author, or ISBN..."
-          class="input-field !pr-9"
+          placeholder="جستجو بر اساس عنوان، نویسنده یا شابک..."
+          class="book-list__search-input"
         />
-        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-ink-muted">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="book-list__search-icon">
+          <svg class="book-list__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
@@ -52,21 +53,26 @@ import type { Book } from '../../../core/models';
 
       <!-- Loading -->
       @if (loading()) {
-        <div class="flex justify-center py-16">
-          <div class="animate-spin rounded-full h-8 w-8 border-2 border-ink/15 border-t-ink"></div>
+        <div class="book-list__loading">
+          <div class="book-list__spinner"></div>
         </div>
       }
 
       <!-- Empty -->
       @if (!loading() && books().length === 0) {
-        <div class="empty-state">
-          <div class="empty-state-icon">&#x1F4DA;</div>
-          <h3 class="empty-state-title">No books found</h3>
-          <p class="empty-state-text">
+        <div class="book-list__empty">
+          <div class="book-list__empty-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+          </div>
+          <h3 class="book-list__empty-title">کتابی یافت نشد</h3>
+          <p class="book-list__empty-text">
             @if (searchControl.value) {
-              No results for "{{ searchControl.value }}". Try a different search term.
+              نتیجه‌ای برای «{{ searchControl.value }}» یافت نشد. عبارت دیگری جستجو کنید.
             } @else {
-              The catalog is empty. Add your first book to get started.
+              فهرست کتاب‌ها خالی است. اولین کتاب را اضافه کنید.
             }
           </p>
         </div>
@@ -74,34 +80,32 @@ import type { Book } from '../../../core/models';
 
       <!-- Book Grid -->
       @if (!loading() && books().length > 0) {
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div class="book-list__grid">
           @for (book of books(); track book.id) {
             <div
-              class="card !p-0 cursor-pointer group transition-shadow duration-150 hover:shadow-md"
+              class="book-list__card"
               (click)="onRowClick(book)"
             >
-              <div class="flex">
+              <div class="book-list__card-inner">
                 <!-- Call number spine -->
-                <div class="flex-shrink-0 w-12 flex items-stretch">
-                  <div class="w-full rounded-r-md flex items-center justify-center text-white text-[0.625rem]
-                              font-mono font-semibold tracking-widest leading-tight p-1"
+                <div class="book-list__spine-wrapper">
+                  <div class="book-list__spine"
                        [style.background]="spineColors[spineColorIndex(book.id)]">
-                    <span class="[writing-mode:vertical-rl] rotate-180">
+                    <span class="book-list__spine-text">
                       {{ isbnLastFour(book.isbn) }}
                     </span>
                   </div>
                 </div>
 
                 <!-- Book info -->
-                <div class="flex-1 p-4 min-w-0">
-                  <h3 class="font-display text-lg font-bold text-ink leading-snug mb-1
-                             group-hover:text-accent transition-colors duration-150">
+                <div class="book-list__card-body">
+                  <h3 class="book-list__card-title">
                     {{ book.title }}
                   </h3>
-                  <p class="text-sm text-ink-light mb-3">{{ book.author }}</p>
+                  <p class="book-list__card-author">{{ book.author }}</p>
 
-                  <div class="flex items-center gap-2 text-[0.6875rem] text-ink-muted font-mono mb-3">
-                    <span>ISBN {{ book.isbn }}</span>
+                  <div class="book-list__card-meta">
+                    <span>شابک {{ book.isbn }}</span>
                     @if (book.publisher || book.publicationYear) {
                       <span>&middot;</span>
                       <span>
@@ -112,20 +116,24 @@ import type { Book } from '../../../core/models';
                   </div>
 
                   <!-- Availability -->
-                  <div class="flex items-center gap-2">
+                  <div class="book-list__availability">
                     @if (book.availableCopies > 0) {
-                      <div class="flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-success"></span>
-                        <span class="text-xs text-success font-medium">{{ book.availableCopies }} available</span>
+                      <div class="book-list__status book-list__status--available">
+                        <span class="book-list__dot book-list__dot--success"></span>
+                        <span class="book-list__status-text book-list__status-text--success">
+                          {{ book.availableCopies }} موجود
+                        </span>
                       </div>
                     } @else {
-                      <div class="flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-danger"></span>
-                        <span class="text-xs text-danger font-medium">Unavailable</span>
+                      <div class="book-list__status book-list__status--unavailable">
+                        <span class="book-list__dot book-list__dot--danger"></span>
+                        <span class="book-list__status-text book-list__status-text--danger">
+                          ناموجود
+                        </span>
                       </div>
                     }
-                    <span class="text-xs text-ink-muted">
-                      / {{ book.copiesCount }} total
+                    <span class="book-list__total-copies">
+                      / {{ book.copiesCount }} کل
                     </span>
                   </div>
                 </div>
@@ -136,27 +144,27 @@ import type { Book } from '../../../core/models';
 
         <!-- Pagination -->
         @if (totalPages() > 1) {
-          <div class="flex items-center justify-center gap-3 py-2">
+          <div class="book-list__pagination">
             <button
-              class="btn btn-ghost btn-sm"
+              class="book-list__page-btn"
               [disabled]="pageIndex === 0"
               (click)="prevPage()"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="book-list__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
               </svg>
-              Prev
+              قبلی
             </button>
-            <span class="text-sm text-ink-muted tabular-nums">
-              {{ pageIndex + 1 }} of {{ totalPages() }}
+            <span class="book-list__page-info">
+              {{ pageIndex + 1 }} از {{ totalPages() }}
             </span>
             <button
-              class="btn btn-ghost btn-sm"
+              class="book-list__page-btn"
               [disabled]="(pageIndex + 1) >= totalPages()"
               (click)="nextPage()"
             >
-              Next
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              بعدی
+              <svg class="book-list__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
               </svg>
             </button>
